@@ -2,74 +2,95 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hái Lộc Liên Quân - Nhận Quà</title>
+    <title>🧧 HÁI LỘC ĐẦU XUÂN - TUẤN HÙNG 🧧</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --red: #ce1f1f; --gold: #ffd700; --dark: #121212; }
+        :root { --red: #ce1f1f; --gold: #ffd700; --dark: #121212; --light-gold: #fff3b0; }
         body { background: var(--dark); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
         
+        /* Hiệu ứng hoa rơi */
         .flower { position: fixed; top: -10%; z-index: 999; pointer-events: none; animation: fall linear infinite; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
+        /* Lưới lì xì */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 15px; max-width: 600px; margin: 30px auto; }
-        
         .lixi-box { position: relative; width: 90px; height: 130px; cursor: pointer; margin: auto; transition: transform 0.2s; }
-        .lixi-box:hover { transform: scale(1.05); }
+        .lixi-box:hover { transform: scale(1.1) rotate(3deg); }
         .lixi-body { position: absolute; bottom: 0; width: 100%; height: 80%; background: var(--red); border: 2px solid var(--gold); border-radius: 0 0 10px 10px; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .lixi-cap { position: absolute; top: 10%; width: 100%; height: 30%; background: #b01a1a; border: 2px solid var(--gold); border-bottom: none; border-radius: 10px 10px 0 0; z-index: 3; transform-origin: top; transition: transform 0.5s ease; }
         .gift-inside { position: absolute; bottom: 10%; left: 5%; width: 90%; height: 60%; background: #fff; border-radius: 5px; color: #333; font-size: 0.65rem; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 1; transition: transform 1s ease, opacity 0.5s; opacity: 0; text-align: center; }
-
         .lixi-box.open .lixi-cap { transform: rotateX(160deg); z-index: 1; }
         .lixi-box.open .gift-inside { transform: translateY(-65px); opacity: 1; z-index: 4; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
-        .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 100%; max-width: 350px; box-shadow: 0 0 30px var(--gold); }
+        /* Overlay dùng chung */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+        .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 100%; max-width: 350px; box-shadow: 0 0 30px var(--gold); position: relative; }
         
+        /* Input & Button */
         input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-weight: bold; box-sizing: border-box; font-size: 1rem; }
-        button { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #000; }
+        .btn-main { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; margin-top: 10px; box-shadow: 0 4px 0 #8b1515; }
+        .btn-main:active { transform: translateY(3px); box-shadow: none; }
+
+        /* Nút nhạc */
+        #music-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--gold); border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; z-index: 10000; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+
+        /* Pop-up xác nhận hấp dẫn */
+        #confirmBox h2 { color: var(--red); margin: 0 0 10px 0; font-size: 1.4rem; }
+        .confirm-icon { font-size: 50px; margin-bottom: 10px; display: block; animation: heartbeat 1.5s infinite; }
+        @keyframes heartbeat { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .btn-no { background: #666; font-size: 0.9rem; margin-top: 5px; opacity: 0.7; }
 
         .copy-area { background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #ce1f1f; }
-        .copy-row { display: flex; justify-content: space-between; align-items: center; margin: 8px 0; font-family: monospace; }
-        .btn-copy { width: auto; padding: 5px 10px; background: #28a745; font-size: 0.7rem; }
     </style>
 </head>
 <body>
-    <h1>🧧 HÁI LỘC LIÊN QUÂN 🧧</h1>
+
+    <audio id="tetMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        </audio>
+    <button id="music-toggle" onclick="toggleMusic()">🎵</button>
+
+    <h1>🧧 HÁI LỘC ĐẦU XUÂN 🧧</h1>
     <div class="grid" id="main-grid"></div>
 
     <div class="overlay" id="loginForm">
         <div class="win-box">
-            <h2 style="margin:0; color:var(--red)">LÌ XÌ MAY MẮN</h2>
-            <p style="font-size: 0.9rem;">Vui lòng nhập ID Instagram của bạn</p>
+            <span class="confirm-icon">🧧</span>
+            <h2 style="color:var(--red)">KHAI XUÂN ĐÓN LỘC</h2>
+            <p>Nhập Instagram của bạn để bốc lì xì may mắn từ Tuấn Hùng!</p>
             <input type="text" id="instaID" placeholder="Ví dụ: @tuanhung_vip">
-            <button onclick="checkUser()">VÀO HÁI LỘC</button>
+            <button class="btn-main" onclick="checkUser()">VÀO HÁI LỘC NGAY</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="confirmOverlay" style="display: none;">
+        <div class="win-box" id="confirmBox">
+            <span class="confirm-icon">✨</span>
+            <h2>MỞ LÌ XÌ MAY MẮN</h2>
+            <p>Vận may năm mới đang chờ bạn! Bạn có chắc chắn muốn chọn bao lì xì này để rinh ngay <b>Nick Liên Quân</b> cực xịn không?</p>
+            <button class="btn-main" id="btnConfirmYes">MỞ NGAY 🧧</button>
+            <button class="btn-main btn-no" onclick="closeConfirm()">ĐỂ SAU</button>
         </div>
     </div>
 
     <div class="overlay" id="resultForm" style="display: none;">
         <div class="win-box">
             <h2 style="color: var(--red); margin:0">CHÚC MỪNG 🎉</h2>
-            <p>Bạn đã nhận được tài khoản sau:</p>
+            <p>Tài khoản may mắn của bạn là:</p>
             <div class="copy-area">
-                <div class="copy-row"><span>TK: <b id="outUser"></b></span><button class="btn-copy" onclick="copyText('outUser')">COPY</button></div>
-                <div class="copy-row"><span>MK: <b id="outPass"></b></span><button class="btn-copy" onclick="copyText('outPass')">COPY</button></div>
+                <div style="margin-bottom:10px">TK: <b id="outUser"></b></div>
+                <div>MK: <b id="outPass"></b></div>
             </div>
-            <p style="font-size: 0.8rem; color: #666;">Vui lòng sao chép hoặc chụp lại!</p>
-            <button onclick="location.reload()">HOÀN THÀNH</button>
+            <button class="btn-main" onclick="location.reload()">HOÀN THÀNH</button>
         </div>
     </div>
 
     <div class="overlay" id="blockForm" style="display: none;">
         <div class="win-box">
-            <div style="font-size: 50px;">🧧</div>
+            <div style="font-size: 50px;">🌸</div>
             <h3 style="color: var(--red);">THÔNG BÁO</h3>
-            <div style="line-height: 1.6; color: #333;">
-                Bạn đã hết lượt mở lì xì!<br><br>
-                Cảm ơn bạn đã tham gia sự kiện. Chúc bạn năm mới vui vẻ, vạn sự như ý.<br><br>
-                <b>Hẹn gặp lại bạn vào năm tới với vô vàn sự kiện mới từ Tuấn Hùng!</b>
-            </div>
+            <p>Bạn đã hết lượt mở lì xì! Chúc bạn năm mới vui vẻ, vạn sự như ý.<br><br><b>Hẹn gặp lại bạn vào năm tới!</b></p>
         </div>
     </div>
 
@@ -89,9 +110,23 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        
         let currentInsta = "";
+        let selectedKey = "";
+        let selectedItem = null;
 
-        // Chặn F5 qua localStorage
+        const music = document.getElementById('tetMusic');
+
+        window.toggleMusic = () => {
+            if (music.paused) {
+                music.play();
+                document.getElementById('music-toggle').innerText = "⏸️";
+            } else {
+                music.pause();
+                document.getElementById('music-toggle').innerText = "🎵";
+            }
+        };
+
         window.onload = () => {
             if(localStorage.getItem('lixi_opened') === 'true') {
                 document.getElementById('loginForm').style.display = 'none';
@@ -101,13 +136,11 @@
 
         window.checkUser = () => {
             const id = document.getElementById('instaID').value.trim();
-            
-            // KIỂM TRA DẤU @
-            if(!id) return alert("Hùng ơi, nhắc khách nhập ID Instagram nhé!");
-            if(!id.startsWith('@')) return alert("ID Instagram phải bắt đầu bằng dấu @ (Ví dụ: @tuanhung_vip)");
-            
+            if(!id.startsWith('@')) return alert("Nhập ID IG có dấu @ đầu nhé Hùng!");
             currentInsta = id;
             document.getElementById('loginForm').style.display = 'none';
+            // Tự động bật nhạc khi khách bắt đầu
+            music.play().catch(() => {}); 
         };
 
         onValue(ref(db, 'acc_lienquan'), (snap) => {
@@ -119,55 +152,45 @@
                     if(data[key].status === 'available') {
                         const box = document.createElement('div');
                         box.className = 'lixi-box';
-                        box.id = `box-${key}`;
                         box.innerHTML = `<div class="lixi-cap"></div><div class="gift-inside">LIÊN QUÂN</div><div class="lixi-body">🧧</div>`;
-                        box.onclick = () => confirmPick(key, data[key]);
+                        box.onclick = () => openConfirm(key, data[key]);
                         grid.appendChild(box);
                     }
                 });
             }
         });
 
-        async function confirmPick(key, item) {
-            if(!currentInsta) return;
-            
-            const check = confirm("Bạn có chắc chắn nhận lì xì này? Mỗi người chỉ có 1 lượt!");
-            if(!check) return;
-
-            document.getElementById(`box-${key}`).classList.add('open');
-            localStorage.setItem('lixi_opened', 'true');
-
-            await update(ref(db, `acc_lienquan/${key}`), { status: 'sold', buyer: currentInsta });
-
-            // Telegram Thông báo cực đẹp
-            const teleMsg = `
-🧧 <b>HÁI LỘC THÀNH CÔNG</b> 🧧
-━━━━━━━━━━━━━━━━━━
-📸 <b>Instagram:</b> <code>${currentInsta}</code>
-🎮 <b>Sản phẩm:</b> Nick Liên Quân
-📧 <b>Tài khoản:</b> <code>${item.username}</code>
-🔑 <b>Mật khẩu:</b> <code>${item.password}</code>
-━━━━━━━━━━━━━━━━━━
-✨ <i>Chúc mừng khách hàng may mắn!</i>`;
-
-            fetch(`https://api.telegram.org/bot8506964729:AAFOdrKaq5TUMiqI7OWfHKpNrwY4qZoynVo/sendMessage?chat_id=7114174347&parse_mode=html&text=${encodeURIComponent(teleMsg)}`);
-
-            setTimeout(() => {
-                confetti({ particleCount: 180, spread: 80, origin: { y: 0.6 } });
-                document.getElementById('outUser').innerText = item.username;
-                document.getElementById('outPass').innerText = item.password;
-                document.getElementById('resultForm').style.display = 'flex';
-            }, 1200);
-        }
-
-        window.copyText = (id) => {
-            navigator.clipboard.writeText(document.getElementById(id).innerText);
-            alert("Đã sao chép!");
+        // Mở Pop-up xác nhận đẹp
+        window.openConfirm = (key, item) => {
+            selectedKey = key;
+            selectedItem = item;
+            document.getElementById('confirmOverlay').style.display = 'flex';
         };
 
+        window.closeConfirm = () => {
+            document.getElementById('confirmOverlay').style.display = 'none';
+        };
+
+        // Khi khách bấm "MỞ NGAY"
+        document.getElementById('btnConfirmYes').onclick = async () => {
+            closeConfirm();
+            localStorage.setItem('lixi_opened', 'true');
+            
+            await update(ref(db, `acc_lienquan/${selectedKey}`), { status: 'sold', buyer: currentInsta });
+
+            const teleMsg = `🧧 <b>KHÁCH BỐC LÌ XÌ</b> 🧧\n━━━━━━━━━━━━━━\n📸 <b>IG:</b> <code>${currentInsta}</code>\n📧 <b>TK:</b> <code>${selectedItem.username}</code>\n🔑 <b>MK:</b> <code>${selectedItem.password}</code>\n━━━━━━━━━━━━━━`;
+            fetch(`https://api.telegram.org/bot8506964729:AAFOdrKaq5TUMiqI7OWfHKpNrwY4qZoynVo/sendMessage?chat_id=7114174347&parse_mode=html&text=${encodeURIComponent(teleMsg)}`);
+
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            document.getElementById('outUser').innerText = selectedItem.username;
+            document.getElementById('outPass').innerText = selectedItem.password;
+            document.getElementById('resultForm').style.display = 'flex';
+        };
+
+        // Hoa rơi
         setInterval(() => {
             const f = document.createElement('div');
-            f.className = 'flower'; f.innerText = '🌸';
+            f.className = 'flower'; f.innerText = Math.random() > 0.5 ? '🌸' : '🧧';
             f.style.left = Math.random() * 100 + 'vw';
             f.style.animationDuration = (Math.random() * 3 + 2) + 's';
             document.body.appendChild(f);
