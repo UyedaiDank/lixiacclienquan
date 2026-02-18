@@ -2,67 +2,42 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hái Lộc Liên Quân - Tuấn Hùng</title>
+    <title>Quản Lý Kho Nick - Tuấn Hùng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --red: #ce1f1f; --gold: #ffd700; --dark: #121212; }
-        body { background: var(--dark); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
-        
-        /* Hiệu ứng hoa rơi */
-        .flower { position: fixed; top: -10%; z-index: 999; pointer-events: none; animation: fall linear infinite; }
-        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
-
-        /* Lưới lì xì */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 15px; max-width: 600px; margin: 30px auto; }
-
-        /* Hiệu ứng trồi quà */
-        .lixi-box { position: relative; width: 90px; height: 130px; cursor: pointer; margin: auto; }
-        .lixi-body { position: absolute; bottom: 0; width: 100%; height: 80%; background: var(--red); border: 2px solid var(--gold); border-radius: 0 0 10px 10px; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .lixi-cap { position: absolute; top: 10%; width: 100%; height: 30%; background: #b01a1a; border: 2px solid var(--gold); border-bottom: none; border-radius: 10px 10px 0 0; z-index: 3; transform-origin: top; transition: transform 0.5s ease; }
-        .gift-inside { position: absolute; bottom: 10%; left: 5%; width: 90%; height: 60%; background: #fff; border-radius: 5px; color: #333; font-size: 0.65rem; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 1; transition: transform 1s ease, opacity 0.5s; opacity: 0; text-align: center; }
-
-        .lixi-box.open .lixi-cap { transform: rotateX(160deg); z-index: 1; }
-        .lixi-box.open .gift-inside { transform: translateY(-65px); opacity: 1; z-index: 4; }
-
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
-        .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 100%; max-width: 350px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-weight: bold; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        
-        .copy-area { background: #f0f0f0; padding: 10px; border-radius: 10px; margin: 15px 0; border: 1px dashed #aaa; }
-        .copy-row { display: flex; justify-content: space-between; align-items: center; margin: 5px 0; font-size: 0.9rem; }
-        .btn-copy { width: auto; padding: 5px 10px; background: #28a745; font-size: 0.7rem; margin: 0; }
+        body { background: #f4f4f4; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #ce1f1f; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #ce1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; background: #fff; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.85rem; }
+        th { background: #eee; }
+        .sold { color: #aaa; text-decoration: line-through; }
     </style>
 </head>
 <body>
 
-    <h1>🧧 HÁI LỘC LIÊN QUÂN 🧧</h1>
-    <div class="grid" id="main-grid"></div>
+    <div class="container">
+        <h2>QUẢN LÝ KHO NICK</h2>
+        <input type="text" id="u" placeholder="Tài khoản Garena">
+        <input type="text" id="p" placeholder="Mật khẩu">
+        <button onclick="addNick()">THÊM NICK VÀO KHO</button>
 
-    <div class="overlay" id="loginForm">
-        <div class="win-box">
-            <h2 style="margin-top:0">🧧 NHẬP TÊN</h2>
-            <input type="text" id="userName" placeholder="Nhập tên của bạn...">
-            <button onclick="checkUser()">BẮT ĐẦU HÁI LỘC</button>
-        </div>
-    </div>
-
-    <div class="overlay" id="resultForm" style="display: none;">
-        <div class="win-box">
-            <h2 style="color: var(--red); margin:0">CHÚC MỪNG 🎉</h2>
-            <div class="copy-area">
-                <div class="copy-row"><span>TK: <b id="outUser"></b></span><button class="btn-copy" onclick="copyText('outUser')">COPY</button></div>
-                <div class="copy-row"><span>MK: <b id="outPass"></b></span><button class="btn-copy" onclick="copyText('outPass')">COPY</button></div>
-            </div>
-            <button onclick="location.reload()">TUYỆT VỜI</button>
-        </div>
+        <table id="list">
+            <thead>
+                <tr>
+                    <th>Tài khoản</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
-        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA9uVdTdtEhxpH3qn9v2g2pCD-9X-C6jic",
@@ -71,72 +46,44 @@
             storageBucket: "lixiacclienquan.firebasestorage.app",
             messagingSenderId: "435779880249",
             appId: "1:435779880249:web:8d80abab3817923369d4e8",
-            measurementId: "G-LSQD2C8YTW"
+            databaseURL: "https://lixiacclienquan-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
 
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
         const db = getDatabase(app);
-        let currentName = "";
 
-        window.checkUser = () => {
-            const name = document.getElementById('userName').value.trim();
-            if(!name) return alert("Hùng ơi, nhắc khách nhập tên nhé!");
-            currentName = name;
-            document.getElementById('loginForm').style.display = 'none';
+        window.addNick = () => {
+            const user = document.getElementById('u').value.trim();
+            const pass = document.getElementById('p').value.trim();
+            if(!user || !pass) return alert("Nhập đủ cả 2 ô Hùng ơi!");
+
+            push(ref(db, 'acc_lienquan'), {
+                username: user,
+                password: pass,
+                status: 'available',
+                buyer: ''
+            });
+            document.getElementById('u').value = '';
+            document.getElementById('p').value = '';
+            alert("Đã thêm nick thành công!");
         };
 
         onValue(ref(db, 'acc_lienquan'), (snap) => {
             const data = snap.val();
-            const grid = document.getElementById('main-grid');
-            grid.innerHTML = '';
+            const tbody = document.getElementById('tbody');
+            tbody.innerHTML = '';
             if(data) {
-                Object.keys(data).forEach((key) => {
-                    if(data[key].status === 'available') {
-                        const box = document.createElement('div');
-                        box.className = 'lixi-box';
-                        box.id = `box-${key}`;
-                        box.innerHTML = `<div class="lixi-cap"></div><div class="gift-inside">LIÊN QUÂN</div><div class="lixi-body">🧧</div>`;
-                        box.onclick = () => pick(key, data[key]);
-                        grid.appendChild(box);
-                    }
+                Object.values(data).reverse().forEach(item => {
+                    const isSold = item.status === 'sold';
+                    tbody.innerHTML += `
+                        <tr class="${isSold ? 'sold' : ''}">
+                            <td>${item.username}</td>
+                            <td>${isSold ? 'Đã bốc ('+item.buyer+')' : 'Sẵn sàng'}</td>
+                        </tr>
+                    `;
                 });
             }
         });
-
-        async function pick(key, item) {
-            if(!currentName) return;
-            const box = document.getElementById(`box-${key}`);
-            if(box.classList.contains('open')) return;
-            box.classList.add('open');
-
-            await update(ref(db, `acc_lienquan/${key}`), { status: 'sold', buyer: currentName });
-
-            setTimeout(() => {
-                confetti({ particleCount: 150, spread: 70 });
-                document.getElementById('outUser').innerText = item.username;
-                document.getElementById('outPass').innerText = item.password;
-                document.getElementById('resultForm').style.display = 'flex';
-                
-                // Gửi Tele
-                const teleMsg = `🎮 NICK BAY: ${item.username} | Khách: ${currentName}`;
-                fetch(`https://api.telegram.org/bot8506964729:AAFOdrKaq5TUMiqI7OWfHKpNrwY4qZoynVo/sendMessage?chat_id=7114174347&text=${encodeURIComponent(teleMsg)}`);
-            }, 1200);
-        }
-
-        window.copyText = (id) => {
-            navigator.clipboard.writeText(document.getElementById(id).innerText);
-            alert("Đã copy thành công!");
-        };
-
-        setInterval(() => {
-            const f = document.createElement('div');
-            f.className = 'flower'; f.innerText = '🌸';
-            f.style.left = Math.random() * 100 + 'vw';
-            f.style.animationDuration = (Math.random() * 3 + 2) + 's';
-            document.body.appendChild(f);
-            setTimeout(() => f.remove(), 4000);
-        }, 500);
     </script>
 </body>
 </html>
