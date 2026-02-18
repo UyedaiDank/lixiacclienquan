@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Kho Nick - Tuấn Hùng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { background: #f4f4f4; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #ce1f1f; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #ce1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; background: #fff; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.85rem; }
+        th { background: #eee; }
+        .sold { color: #aaa; text-decoration: line-through; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>QUẢN LÝ KHO NICK</h2>
+        <input type="text" id="u" placeholder="Tài khoản Garena">
+        <input type="text" id="p" placeholder="Mật khẩu">
+        <button onclick="addNick()">THÊM NICK VÀO KHO</button>
+
+        <table id="list">
+            <thead>
+                <tr>
+                    <th>Tài khoản</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA9uVdTdtEhxpH3qn9v2g2pCD-9X-C6jic",
+            authDomain: "lixiacclienquan.firebaseapp.com",
+            projectId: "lixiacclienquan",
+            storageBucket: "lixiacclienquan.firebasestorage.app",
+            messagingSenderId: "435779880249",
+            appId: "1:435779880249:web:8d80abab3817923369d4e8",
+            databaseURL: "https://lixiacclienquan-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        window.addNick = () => {
+            const user = document.getElementById('u').value.trim();
+            const pass = document.getElementById('p').value.trim();
+            if(!user || !pass) return alert("Nhập đủ cả 2 ô Hùng ơi!");
+
+            push(ref(db, 'acc_lienquan'), {
+                username: user,
+                password: pass,
+                status: 'available',
+                buyer: ''
+            });
+            document.getElementById('u').value = '';
+            document.getElementById('p').value = '';
+            alert("Đã thêm nick thành công!");
+        };
+
+        onValue(ref(db, 'acc_lienquan'), (snap) => {
+            const data = snap.val();
+            const tbody = document.getElementById('tbody');
+            tbody.innerHTML = '';
+            if(data) {
+                Object.values(data).reverse().forEach(item => {
+                    const isSold = item.status === 'sold';
+                    tbody.innerHTML += `
+                        <tr class="${isSold ? 'sold' : ''}">
+                            <td>${item.username}</td>
+                            <td>${isSold ? 'Đã bốc ('+item.buyer+')' : 'Sẵn sàng'}</td>
+                        </tr>
+                    `;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
