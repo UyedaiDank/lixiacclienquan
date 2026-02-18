@@ -8,12 +8,12 @@
     <style>
         :root { --red: #ce1f1f; --gold: #ffd700; --dark: #121212; }
         body { background: var(--dark); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
+        
         .flower { position: fixed; top: -10%; z-index: 999; pointer-events: none; animation: fall linear infinite; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
         
-        /* Bảng lưu ý đẹp */
-        .warning-board { max-width: 500px; margin: 20px auto; background: rgba(255, 215, 0, 0.1); border: 2px solid var(--gold); border-radius: 15px; padding: 15px; animation: scaleIn 0.5s ease; }
-        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* Bảng lưu ý */
+        .warning-board { max-width: 500px; margin: 20px auto; background: rgba(255, 215, 0, 0.1); border: 2px solid var(--gold); border-radius: 15px; padding: 15px; }
         
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 15px; max-width: 600px; margin: auto; }
         .lixi-box { position: relative; width: 90px; height: 130px; cursor: pointer; margin: auto; }
@@ -25,21 +25,24 @@
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
         .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 100%; max-width: 350px; }
+        
         input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; text-align: center; box-sizing: border-box; }
-        .btn-main { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; }
-        #music-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--gold); border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; z-index: 10000; }
+        .btn-main { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; display: block; text-decoration: none; }
+        
+        /* Nút Like FB */
+        .btn-fb { background: #1877F2; margin-bottom: 10px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        
+        .disabled { background: #ccc !important; cursor: not-allowed; opacity: 0.5; }
     </style>
 </head>
 <body>
-
-    <audio id="tetMusic" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
-    <button id="music-toggle" onclick="toggleMusic()">🎵</button>
 
     <h1>🧧 HÁI LỘC BÍNH NGỌ 2026 🧧</h1>
 
     <div class="warning-board">
         <h3 style="color: var(--gold); margin: 0;">⚠️ LƯU Ý VẬN MAY</h3>
-        <p style="font-size: 0.85rem;">Acc Liên Quân có thể dính thông tin, bị ban hoặc có người vào. Tất cả tùy thuộc vào vận may của bạn. Chúc bạn năm mới rực rỡ! ✨</p>
+        <p style="font-size: 0.85rem;">Acc Liên Quân có thể dính thông tin, bị ban hoặc có người vào. Chúc bạn năm mới rực rỡ! ✨</p>
     </div>
 
     <div class="grid" id="main-grid"></div>
@@ -47,9 +50,15 @@
     <div class="overlay" id="loginForm">
         <div class="win-box">
             <h2 style="color:var(--red); margin:0">BÍNH NGỌ PHÁT TÀI</h2>
-            <p>Nhập Instagram của bạn để bốc lộc</p>
+            <p style="font-size: 0.9rem; font-weight: bold;">Vui lòng Like bài viết ủng hộ Hùng trước khi bốc lộc nhé!</p>
+            
+            <a href="https://www.facebook.com/share/p/1XSAvnLMw5/" target="_blank" class="btn-main btn-fb" onclick="hasClickedLike()">1. BẤM VÀO ĐÂY ĐỂ LIKE TUS</a>
+            
+            <p style="font-size: 0.8rem;">Sau đó nhập Instagram để tiếp tục:</p>
             <input type="text" id="instaID" placeholder="Ví dụ: @tuanhung_2026">
-            <button class="btn-main" onclick="checkUser()">VÀO HÁI LỘC</button>
+            
+            <button class="btn-main disabled" id="entryBtn" onclick="checkUser()" disabled>2. VÀO HÁI LỘC</button>
+            <p id="msg-hint" style="font-size: 0.7rem; color: #888; margin-top: 5px;">(Bạn cần bấm vào nút Like màu xanh trước)</p>
         </div>
     </div>
 
@@ -70,7 +79,7 @@
                 <div>MK: <b id="outPass"></b></div>
             </div>
             <p style="font-size:0.7rem; color:red">Hãy chụp màn hình lại ngay!</p>
-            <button class="btn-main" onclick="location.reload()">HOÀN THÀNH</button>
+            <button class="btn-main" onclick="location.reload()">TUYỆT VỜI</button>
         </div>
     </div>
 
@@ -100,15 +109,23 @@
         const db = getDatabase(app);
         
         let currentInsta = "", selectedKey = "", selectedItem = null, serverEventID = 0;
-        const music = document.getElementById('tetMusic');
+        let clickedLike = false;
 
-        // KIỂM TRA RESET VÀ CHẶN
+        // Xử lý khi khách bấm Like
+        window.hasClickedLike = () => {
+            clickedLike = true;
+            const btn = document.getElementById('entryBtn');
+            btn.classList.remove('disabled');
+            btn.disabled = false;
+            document.getElementById('msg-hint').innerText = "Cảm ơn bạn! Giờ hãy nhập ID và vào hái lộc.";
+            document.getElementById('msg-hint').style.color = "green";
+        };
+
         async function checkBlockStatus() {
             const snap = await get(ref(db, 'event_config/id'));
             serverEventID = snap.val() || 0;
             const localEventID = localStorage.getItem('lixi_event_id');
 
-            // Nếu ID server khác ID máy khách -> Admin đã Reset -> Mở chặn
             if (serverEventID.toString() !== localEventID) {
                 localStorage.removeItem('lixi_opened');
                 localStorage.setItem('lixi_event_id', serverEventID);
@@ -121,17 +138,12 @@
         }
         checkBlockStatus();
 
-        window.toggleMusic = () => {
-            if (music.paused) { music.play(); document.getElementById('music-toggle').innerText = "⏸️"; }
-            else { music.pause(); document.getElementById('music-toggle').innerText = "🎵"; }
-        };
-
         window.checkUser = () => {
+            if(!clickedLike) return alert("Hùng yêu cầu bạn phải bấm vào nút Like bài viết trước nhé!");
             const id = document.getElementById('instaID').value.trim();
             if(!id.startsWith('@')) return alert("ID Instagram phải có @ nhé Hùng!");
             currentInsta = id;
             document.getElementById('loginForm').style.display = 'none';
-            music.play().catch(() => {});
         };
 
         onValue(ref(db, 'acc_lienquan'), (snap) => {
@@ -144,7 +156,11 @@
                         const box = document.createElement('div');
                         box.className = 'lixi-box';
                         box.innerHTML = `<div class="lixi-cap"></div><div class="gift-inside">LIÊN QUÂN</div><div class="lixi-body">🧧</div>`;
-                        box.onclick = () => { selectedKey=key; selectedItem=data[key]; document.getElementById('confirmOverlay').style.display='flex'; };
+                        box.onclick = () => { 
+                            selectedKey=key; 
+                            selectedItem=data[key]; 
+                            document.getElementById('confirmOverlay').style.display='flex'; 
+                        };
                         grid.appendChild(box);
                     }
                 });
