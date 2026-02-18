@@ -2,37 +2,53 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Quản Lý Kho Nick Bính Ngọ</title>
+    <title>Admin - Kho Nick Bính Ngọ 2026</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { background: #f4f4f4; font-family: sans-serif; padding: 20px; }
-        .container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         h2 { color: #ce1f1f; text-align: center; }
-        textarea { width: 100%; height: 150px; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        textarea { width: 100%; height: 100px; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        select { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; }
         .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
         button { flex: 2; padding: 15px; background: #ce1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .btn-reset { flex: 1; background: #ff9f43; }
-        .stats { display: flex; justify-content: space-around; margin: 20px 0; background: #fff5f5; padding: 15px; border-radius: 10px; border: 1px solid #ffebeb; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        .btn-delete { background: #ff4757; color: white; border: none; padding: 5px; border-radius: 3px; cursor: pointer; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; background: #fff5f5; padding: 15px; border-radius: 10px; text-align: center; }
+        .stats b { display: block; color: #ce1f1f; font-size: 1.2rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .type-tag { padding: 2px 5px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; color: white; }
+        .sss { background: #ff4757; } .ss { background: #ffa502; } .rd { background: #2f3542; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>QUẢN TRỊ VIÊN - BÍNH NGỌ 2026</h2>
-        <textarea id="bulkInput" placeholder="Tài khoản | Mật khẩu"></textarea>
+        <h2>QUẢN TRỊ VIÊN 2026</h2>
+        
+        <label>1. Chọn loại Acc muốn nạp:</label>
+        <select id="accType">
+            <option value="SSS">ACC SSS (Cực phẩm)</option>
+            <option value="SS">ACC SS (Siêu cấp)</option>
+            <option value="Random">ACC RANDOM (May rủi)</option>
+        </select>
+
+        <label>2. Dán danh sách (User|Pass):</label>
+        <textarea id="bulkInput" placeholder="User|Pass"></textarea>
+        
         <div class="btn-group">
-            <button onclick="bulkAdd()">NẠP NICK</button>
-            <button class="btn-reset" onclick="resetSystem()">RESET TOÀN BỘ</button>
+            <button onclick="bulkAdd()">NẠP VÀO KHO</button>
+            <button class="btn-reset" onclick="resetSystem()">RESET DATA</button>
         </div>
+
         <div class="stats">
-            <div>Tổng: <b id="st-total">0</b></div>
-            <div>Còn: <b id="st-avai">0</b></div>
-            <div>Đã bốc: <b id="st-sold">0</b></div>
+            <div>Tổng<b id="st-total">0</b></div>
+            <div>SSS<b id="st-sss">0</b></div>
+            <div>SS<b id="st-ss">0</b></div>
+            <div>RD<b id="st-rd">0</b></div>
         </div>
+
         <table>
-            <thead><tr><th>Nick</th><th>Khách bốc</th><th>Xóa</th></tr></thead>
+            <thead><tr><th>Loại</th><th>Thông tin</th><th>Người bốc</th><th>Xóa</th></tr></thead>
             <tbody id="tbody"></tbody>
         </table>
     </div>
@@ -54,24 +70,27 @@
         const db = getDatabase(app);
 
         window.bulkAdd = async () => {
+            const type = document.getElementById('accType').value;
             const input = document.getElementById('bulkInput').value.trim();
             if(!input) return;
             const lines = input.split('\n');
             for (let line of lines) {
                 if (line.includes('|')) {
                     const [u, p] = line.split('|');
-                    await set(push(ref(db, 'acc_lienquan')), { username: u.trim(), password: p.trim(), status: 'available', buyer: '' });
+                    await set(push(ref(db, 'acc_lienquan')), { 
+                        username: u.trim(), password: p.trim(), 
+                        status: 'available', buyer: '', type: type 
+                    });
                 }
             }
             document.getElementById('bulkInput').value = '';
+            alert("Đã nạp xong loại " + type);
         };
 
         window.resetSystem = async () => {
-            if(confirm("Xóa sạch toàn bộ và cho phép tất cả mọi người bốc lại từ đầu?")) {
+            if(confirm("Xóa sạch hết?")) {
                 await remove(ref(db, 'acc_lienquan'));
-                // Tạo ID sự kiện mới để mở chặn cho các máy khách
                 await set(ref(db, 'event_config/id'), Date.now());
-                alert("Đã Reset sạch sẽ!");
             }
         };
 
@@ -81,17 +100,24 @@
             const data = snap.val();
             const tbody = document.getElementById('tbody');
             tbody.innerHTML = '';
-            let t=0, a=0, s=0;
+            let t=0, sss=0, ss=0, rd=0;
             if(data) {
                 Object.keys(data).reverse().forEach(id => {
                     const item = data[id]; t++;
-                    if(item.status === 'sold') s++; else a++;
-                    tbody.innerHTML += `<tr><td>${item.username}</td><td>${item.buyer || '-'}</td><td><button class="btn-delete" onclick="deleteAcc('${id}')">Xóa</button></td></tr>`;
+                    if(item.type === 'SSS') sss++; else if(item.type === 'SS') ss++; else rd++;
+                    const typeClass = item.type === 'SSS' ? 'sss' : (item.type === 'SS' ? 'ss' : 'rd');
+                    tbody.innerHTML += `<tr>
+                        <td><span class="type-tag ${typeClass}">${item.type}</span></td>
+                        <td>${item.username}</td>
+                        <td>${item.buyer || '-'}</td>
+                        <td><button onclick="deleteAcc('${id}')">X</button></td>
+                    </tr>`;
                 });
             }
             document.getElementById('st-total').innerText = t;
-            document.getElementById('st-avai').innerText = a;
-            document.getElementById('st-sold').innerText = s;
+            document.getElementById('st-sss').innerText = sss;
+            document.getElementById('st-ss').innerText = ss;
+            document.getElementById('st-rd').innerText = rd;
         });
     </script>
 </body>
