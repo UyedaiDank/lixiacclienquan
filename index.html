@@ -2,41 +2,57 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Kho Nick - Tuấn Hùng</title>
+    <title>Admin - Quản Lý Kho Nick</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { background: #f4f4f4; font-family: sans-serif; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         h2 { color: #ce1f1f; text-align: center; }
-        textarea { width: 100%; height: 150px; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; font-family: monospace; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #ce1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .stats { display: flex; justify-content: space-around; margin: 20px 0; background: #fff5f5; padding: 10px; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .sold { color: #aaa; text-decoration: line-through; }
+        textarea { width: 100%; height: 150px; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: monospace; }
+        button { width: 100%; padding: 15px; background: #ce1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; }
+        button:hover { background: #b01a1a; }
+        
+        .stats { display: flex; justify-content: space-around; margin: 20px 0; background: #fff5f5; padding: 15px; border-radius: 10px; border: 1px solid #ffebeb; }
+        .stats b { color: #ce1f1f; font-size: 1.2rem; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.85rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #eee; }
+        .sold { color: #aaa; text-decoration: line-through; background: #fafafa; }
+        
+        /* Nút Xóa */
+        .btn-delete { background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.75rem; }
+        .btn-delete:hover { background: #ff6b81; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>NẠP NICK (tk|mk)</h2>
-        <textarea id="bulkInput" placeholder="admin1|pass123&#10;user2|pass456"></textarea>
-        <button onclick="bulkAddNick()">NẠP VÀO HỆ THỐNG</button>
+        <h2>QUẢN TRỊ VIÊN - NẠP NICK</h2>
+        <p style="text-align: center; font-size: 0.9rem; color: #666;">Định dạng: <b>tài khoản | mật khẩu</b></p>
+        <textarea id="bulkInput" placeholder="garena_user1|pass123&#10;garena_user2|pass456"></textarea>
+        <button onclick="bulkAdd()">NẠP VÀO HỆ THỐNG</button>
 
         <div class="stats">
-            <div>Tổng: <b id="t">0</b></div>
-            <div>Còn: <b id="a">0</b></div>
-            <div>Hết: <b id="s">0</b></div>
+            <div>Tổng: <br><b id="st-total">0</b></div>
+            <div>Còn: <br><b id="st-avai">0</b></div>
+            <div>Đã bốc: <br><b id="st-sold">0</b></div>
         </div>
 
         <table>
-            <thead><tr><th>STT</th><th>Tài khoản</th><th>Trạng thái</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Tài khoản | Mật khẩu</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
             <tbody id="tbody"></tbody>
         </table>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA9uVdTdtEhxpH3qn9v2g2pCD-9X-C6jic",
@@ -51,32 +67,69 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        window.bulkAddNick = async () => {
-            const lines = document.getElementById('bulkInput').value.trim().split('\n');
+        // Hàm nạp nick số lượng lớn
+        window.bulkAdd = async () => {
+            const input = document.getElementById('bulkInput').value.trim();
+            if(!input) return alert("Vui lòng dán danh sách nick!");
+            const lines = input.split('\n');
             for (let line of lines) {
                 if (line.includes('|')) {
                     const [u, p] = line.split('|');
-                    await set(push(ref(db, 'acc_lienquan')), { username: u.trim(), password: p.trim(), status: 'available', buyer: '' });
+                    await set(push(ref(db, 'acc_lienquan')), { 
+                        username: u.trim(), 
+                        password: p.trim(), 
+                        status: 'available', 
+                        buyer: '' 
+                    });
                 }
             }
-            alert("Đã nạp xong!");
+            alert("Đã nạp thành công!");
             document.getElementById('bulkInput').value = '';
         };
 
+        // Hàm xóa nick
+        window.deleteAcc = (id) => {
+            if(confirm("Bạn có chắc chắn muốn xóa tài khoản này khỏi hệ thống?")) {
+                remove(ref(db, `acc_lienquan/${id}`))
+                .then(() => alert("Đã xóa!"))
+                .catch((error) => alert("Lỗi: " + error));
+            }
+        };
+
+        // Lấy dữ liệu và hiển thị
         onValue(ref(db, 'acc_lienquan'), (snap) => {
             const data = snap.val();
             const tbody = document.getElementById('tbody');
             tbody.innerHTML = '';
-            let total = 0, avai = 0, sold = 0;
+            let t = 0, a = 0, s = 0;
+            
             if (data) {
-                Object.values(data).reverse().forEach((item, i) => {
-                    total++;
+                // Chuyển object sang array để đảo ngược (hiện nick mới nạp lên đầu)
+                const keys = Object.keys(data).reverse();
+                
+                keys.forEach(id => {
+                    const item = data[id];
+                    t++;
                     const isSold = item.status === 'sold';
-                    if (isSold) sold++; else avai++;
-                    tbody.innerHTML += `<tr class="${isSold ? 'sold' : ''}"><td>${i+1}</td><td>${item.username}</td><td>${isSold ? 'Hết ('+item.buyer+')' : 'Sẵn'}</td></tr>`;
+                    if (isSold) s++; else a++;
+                    
+                    tbody.innerHTML += `
+                        <tr class="${isSold ? 'sold' : ''}">
+                            <td>
+                                <b>${item.username}</b><br>
+                                <small>${item.password}</small>
+                            </td>
+                            <td>${isSold ? 'Đã bốc ('+item.buyer+')' : '<span style="color:green">Sẵn sàng</span>'}</td>
+                            <td>
+                                <button class="btn-delete" onclick="deleteAcc('${id}')">Xóa</button>
+                            </td>
+                        </tr>
+                    `;
                 });
             }
-            document.getElementById('t').innerText = total; document.getElementById('a').innerText = avai; document.getElementById('s').innerText = sold;
+            document.getElementById('st-total').innerText = t;
+            document.getElementById('st-avai').innerText = a;
+            document.getElementById('st-sold').innerText = s;
         });
     </script>
 </body>
