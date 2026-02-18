@@ -8,41 +8,31 @@
     <style>
         :root { --red: #ce1f1f; --gold: #ffd700; --dark: #121212; }
         body { background: var(--dark); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
-        
-        /* Hiệu ứng hoa rơi */
         .flower { position: fixed; top: -10%; z-index: 999; pointer-events: none; animation: fall linear infinite; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
-
-        /* Lưới lì xì */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 15px; max-width: 600px; margin: 30px auto; }
-
-        /* Hiệu ứng trồi quà */
         .lixi-box { position: relative; width: 90px; height: 130px; cursor: pointer; margin: auto; }
         .lixi-body { position: absolute; bottom: 0; width: 100%; height: 80%; background: var(--red); border: 2px solid var(--gold); border-radius: 0 0 10px 10px; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .lixi-cap { position: absolute; top: 10%; width: 100%; height: 30%; background: #b01a1a; border: 2px solid var(--gold); border-bottom: none; border-radius: 10px 10px 0 0; z-index: 3; transform-origin: top; transition: transform 0.5s ease; }
         .gift-inside { position: absolute; bottom: 10%; left: 5%; width: 90%; height: 60%; background: #fff; border-radius: 5px; color: #333; font-size: 0.65rem; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 1; transition: transform 1s ease, opacity 0.5s; opacity: 0; text-align: center; }
-
         .lixi-box.open .lixi-cap { transform: rotateX(160deg); z-index: 1; }
         .lixi-box.open .gift-inside { transform: translateY(-65px); opacity: 1; z-index: 4; }
-
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
-        .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 100%; max-width: 350px; text-align: center; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+        .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 100%; max-width: 350px; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-weight: bold; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        
         .copy-area { background: #f0f0f0; padding: 10px; border-radius: 10px; margin: 15px 0; border: 1px dashed #aaa; }
         .copy-row { display: flex; justify-content: space-between; align-items: center; margin: 5px 0; font-size: 0.9rem; }
-        .btn-copy { width: auto; padding: 5px 10px; background: #28a745; font-size: 0.7rem; margin: 0; }
+        .btn-copy { width: auto; padding: 5px 10px; background: #28a745; font-size: 0.7rem; }
     </style>
 </head>
 <body>
-
     <h1>🧧 HÁI LỘC LIÊN QUÂN 🧧</h1>
     <div class="grid" id="main-grid"></div>
 
     <div class="overlay" id="loginForm">
         <div class="win-box">
-            <h2 style="margin-top:0">🧧 NHẬP TÊN</h2>
+            <h2>🧧 NHẬP TÊN</h2>
             <input type="text" id="userName" placeholder="Nhập tên của bạn...">
             <button onclick="checkUser()">BẮT ĐẦU HÁI LỘC</button>
         </div>
@@ -61,7 +51,6 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
         import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
@@ -71,17 +60,16 @@
             storageBucket: "lixiacclienquan.firebasestorage.app",
             messagingSenderId: "435779880249",
             appId: "1:435779880249:web:8d80abab3817923369d4e8",
-            measurementId: "G-LSQD2C8YTW"
+            databaseURL: "https://lixiacclienquan-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
 
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
         const db = getDatabase(app);
         let currentName = "";
 
         window.checkUser = () => {
             const name = document.getElementById('userName').value.trim();
-            if(!name) return alert("Hùng ơi, nhắc khách nhập tên nhé!");
+            if(!name) return alert("Vui lòng nhập tên!");
             currentName = name;
             document.getElementById('loginForm').style.display = 'none';
         };
@@ -117,16 +105,13 @@
                 document.getElementById('outUser').innerText = item.username;
                 document.getElementById('outPass').innerText = item.password;
                 document.getElementById('resultForm').style.display = 'flex';
-                
-                // Gửi Tele
-                const teleMsg = `🎮 NICK BAY: ${item.username} | Khách: ${currentName}`;
-                fetch(`https://api.telegram.org/bot8506964729:AAFOdrKaq5TUMiqI7OWfHKpNrwY4qZoynVo/sendMessage?chat_id=7114174347&text=${encodeURIComponent(teleMsg)}`);
+                fetch(`https://api.telegram.org/bot8506964729:AAFOdrKaq5TUMiqI7OWfHKpNrwY4qZoynVo/sendMessage?chat_id=7114174347&text=${encodeURIComponent('🎮 NICK BAY: ' + item.username + ' | Khách: ' + currentName)}`);
             }, 1200);
         }
 
         window.copyText = (id) => {
             navigator.clipboard.writeText(document.getElementById(id).innerText);
-            alert("Đã copy thành công!");
+            alert("Đã copy!");
         };
 
         setInterval(() => {
