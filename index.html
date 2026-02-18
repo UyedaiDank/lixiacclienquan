@@ -2,42 +2,41 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản Lý Kho Nick - Tuấn Hùng</title>
+    <title>Admin Kho Nick - Tuấn Hùng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { background: #f4f4f4; font-family: sans-serif; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         h2 { color: #ce1f1f; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #ce1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        table { width: 100%; margin-top: 20px; border-collapse: collapse; background: #fff; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.85rem; }
-        th { background: #eee; }
+        textarea { width: 100%; height: 150px; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; font-family: monospace; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #ce1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .stats { display: flex; justify-content: space-around; margin: 20px 0; background: #fff5f5; padding: 10px; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         .sold { color: #aaa; text-decoration: line-through; }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h2>QUẢN LÝ KHO NICK</h2>
-        <input type="text" id="u" placeholder="Tài khoản Garena">
-        <input type="text" id="p" placeholder="Mật khẩu">
-        <button onclick="addNick()">THÊM NICK VÀO KHO</button>
+        <h2>NẠP NICK (tk|mk)</h2>
+        <textarea id="bulkInput" placeholder="admin1|pass123&#10;user2|pass456"></textarea>
+        <button onclick="bulkAddNick()">NẠP VÀO HỆ THỐNG</button>
 
-        <table id="list">
-            <thead>
-                <tr>
-                    <th>Tài khoản</th>
-                    <th>Trạng thái</th>
-                </tr>
-            </thead>
+        <div class="stats">
+            <div>Tổng: <b id="t">0</b></div>
+            <div>Còn: <b id="a">0</b></div>
+            <div>Hết: <b id="s">0</b></div>
+        </div>
+
+        <table>
+            <thead><tr><th>STT</th><th>Tài khoản</th><th>Trạng thái</th></tr></thead>
             <tbody id="tbody"></tbody>
         </table>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA9uVdTdtEhxpH3qn9v2g2pCD-9X-C6jic",
@@ -52,37 +51,32 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        window.addNick = () => {
-            const user = document.getElementById('u').value.trim();
-            const pass = document.getElementById('p').value.trim();
-            if(!user || !pass) return alert("Nhập đủ cả 2 ô Hùng ơi!");
-
-            push(ref(db, 'acc_lienquan'), {
-                username: user,
-                password: pass,
-                status: 'available',
-                buyer: ''
-            });
-            document.getElementById('u').value = '';
-            document.getElementById('p').value = '';
-            alert("Đã thêm nick thành công!");
+        window.bulkAddNick = async () => {
+            const lines = document.getElementById('bulkInput').value.trim().split('\n');
+            for (let line of lines) {
+                if (line.includes('|')) {
+                    const [u, p] = line.split('|');
+                    await set(push(ref(db, 'acc_lienquan')), { username: u.trim(), password: p.trim(), status: 'available', buyer: '' });
+                }
+            }
+            alert("Đã nạp xong!");
+            document.getElementById('bulkInput').value = '';
         };
 
         onValue(ref(db, 'acc_lienquan'), (snap) => {
             const data = snap.val();
             const tbody = document.getElementById('tbody');
             tbody.innerHTML = '';
-            if(data) {
-                Object.values(data).reverse().forEach(item => {
+            let total = 0, avai = 0, sold = 0;
+            if (data) {
+                Object.values(data).reverse().forEach((item, i) => {
+                    total++;
                     const isSold = item.status === 'sold';
-                    tbody.innerHTML += `
-                        <tr class="${isSold ? 'sold' : ''}">
-                            <td>${item.username}</td>
-                            <td>${isSold ? 'Đã bốc ('+item.buyer+')' : 'Sẵn sàng'}</td>
-                        </tr>
-                    `;
+                    if (isSold) sold++; else avai++;
+                    tbody.innerHTML += `<tr class="${isSold ? 'sold' : ''}"><td>${i+1}</td><td>${item.username}</td><td>${isSold ? 'Hết ('+item.buyer+')' : 'Sẵn'}</td></tr>`;
                 });
             }
+            document.getElementById('t').innerText = total; document.getElementById('a').innerText = avai; document.getElementById('s').innerText = sold;
         });
     </script>
 </body>
