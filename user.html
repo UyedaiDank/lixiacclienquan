@@ -13,8 +13,28 @@
         .flower { position: fixed; top: -10%; z-index: 999; pointer-events: none; animation: fall linear infinite; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
+        /* Bảng Thông Báo Quan Trọng */
+        .warning-board {
+            max-width: 500px;
+            margin: 20px auto;
+            background: rgba(255, 243, 176, 0.1);
+            border: 2px dashed var(--gold);
+            border-radius: 15px;
+            padding: 15px;
+            position: relative;
+            animation: fadeInDown 1s ease;
+        }
+        .warning-board h3 { color: var(--gold); margin-top: 0; font-size: 1.1rem; text-transform: uppercase; }
+        .warning-board p { font-size: 0.85rem; line-height: 1.5; color: #f0f0f0; margin-bottom: 0; }
+        .warning-icon { font-size: 24px; display: block; margin-bottom: 5px; }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* Lưới lì xì */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 15px; max-width: 600px; margin: 30px auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 15px; max-width: 600px; margin: 20px auto; }
         .lixi-box { position: relative; width: 90px; height: 130px; cursor: pointer; margin: auto; transition: transform 0.2s; }
         .lixi-box:hover { transform: scale(1.1) rotate(3deg); }
         .lixi-body { position: absolute; bottom: 0; width: 100%; height: 80%; background: var(--red); border: 2px solid var(--gold); border-radius: 0 0 10px 10px; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
@@ -23,66 +43,69 @@
         .lixi-box.open .lixi-cap { transform: rotateX(160deg); z-index: 1; }
         .lixi-box.open .gift-inside { transform: translateY(-65px); opacity: 1; z-index: 4; }
 
-        /* Overlay dùng chung */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
-        .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 100%; max-width: 350px; box-shadow: 0 0 30px var(--gold); position: relative; }
+        /* Overlay & Box */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+        .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 100%; max-width: 350px; box-shadow: 0 0 30px var(--gold); text-align: center; }
         
-        /* Input & Button */
         input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-weight: bold; box-sizing: border-box; font-size: 1rem; }
         .btn-main { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; margin-top: 10px; box-shadow: 0 4px 0 #8b1515; }
-        .btn-main:active { transform: translateY(3px); box-shadow: none; }
-
-        /* Nút nhạc */
-        #music-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--gold); border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; z-index: 10000; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
-
-        /* Pop-up xác nhận hấp dẫn */
-        #confirmBox h2 { color: var(--red); margin: 0 0 10px 0; font-size: 1.4rem; }
-        .confirm-icon { font-size: 50px; margin-bottom: 10px; display: block; animation: heartbeat 1.5s infinite; }
-        @keyframes heartbeat { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        .btn-no { background: #666; font-size: 0.9rem; margin-top: 5px; opacity: 0.7; }
-
-        .copy-area { background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #ce1f1f; }
+        .btn-main:active { transform: translateY(2px); box-shadow: none; }
+        
+        #music-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--gold); border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; z-index: 10000; }
+        .copy-area { background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 10px 0; border: 1px dashed var(--red); }
     </style>
 </head>
 <body>
 
     <audio id="tetMusic" loop>
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-        </audio>
+    </audio>
     <button id="music-toggle" onclick="toggleMusic()">🎵</button>
 
     <h1>🧧 HÁI LỘC ĐẦU XUÂN 🧧</h1>
+
+    <div class="warning-board">
+        <span class="warning-icon">⚠️</span>
+        <h3>Lưu Ý Vận May</h3>
+        <p>
+            Tài khoản Liên Quân trong bao lì xì được cấp ngẫu nhiên. Có thể gặp tình trạng 
+            <b>dính thông tin, bị khóa (ban) hoặc có người đang sử dụng</b>. 
+            Tất cả phụ thuộc vào nhân phẩm và vận may đầu năm của bạn. 
+            Chúc các kiện tướng hái được lộc xịn!
+        </p>
+    </div>
+
     <div class="grid" id="main-grid"></div>
 
     <div class="overlay" id="loginForm">
         <div class="win-box">
-            <span class="confirm-icon">🧧</span>
-            <h2 style="color:var(--red)">KHAI XUÂN ĐÓN LỘC</h2>
-            <p>Nhập Instagram của bạn để bốc lì xì may mắn từ Tuấn Hùng!</p>
-            <input type="text" id="instaID" placeholder="Ví dụ: @tuanhung_vip">
-            <button class="btn-main" onclick="checkUser()">VÀO HÁI LỘC NGAY</button>
+            <h2 style="color:var(--red); margin:0">MỪNG XUÂN ẤT TỴ</h2>
+            <p>Nhập Instagram cá nhân để nhận lộc</p>
+            <input type="text" id="instaID" placeholder="Ví dụ: @tuanhung.vn">
+            <button class="btn-main" onclick="checkUser()">BẮT ĐẦU HÁI LỘC</button>
         </div>
     </div>
 
     <div class="overlay" id="confirmOverlay" style="display: none;">
-        <div class="win-box" id="confirmBox">
-            <span class="confirm-icon">✨</span>
-            <h2>MỞ LÌ XÌ MAY MẮN</h2>
-            <p>Vận may năm mới đang chờ bạn! Bạn có chắc chắn muốn chọn bao lì xì này để rinh ngay <b>Nick Liên Quân</b> cực xịn không?</p>
-            <button class="btn-main" id="btnConfirmYes">MỞ NGAY 🧧</button>
-            <button class="btn-main btn-no" onclick="closeConfirm()">ĐỂ SAU</button>
+        <div class="win-box">
+            <span style="font-size:50px">✨</span>
+            <h2 style="color:var(--red)">XÁC NHẬN MỞ</h2>
+            <p>Bạn có chắc chắn muốn nhận bao lì xì này không? Vận may chỉ đến một lần duy nhất!</p>
+            <button class="btn-main" id="btnConfirmYes">MỞ BAO LÌ XÌ 🧧</button>
+            <button class="btn-main" style="background:#666; box-shadow: 0 4px 0 #444;" onclick="closeConfirm()">ĐỂ CHỌN LẠI</button>
         </div>
     </div>
 
     <div class="overlay" id="resultForm" style="display: none;">
         <div class="win-box">
-            <h2 style="color: var(--red); margin:0">CHÚC MỪNG 🎉</h2>
-            <p>Tài khoản may mắn của bạn là:</p>
+            <h2 style="color: var(--red); margin:0">THÀNH CÔNG 🎉</h2>
+            <p>Phần quà của bạn đã lộ diện:</p>
             <div class="copy-area">
-                <div style="margin-bottom:10px">TK: <b id="outUser"></b></div>
+                <div style="margin-bottom:8px">TK: <b id="outUser"></b></div>
                 <div>MK: <b id="outPass"></b></div>
             </div>
-            <button class="btn-main" onclick="location.reload()">HOÀN THÀNH</button>
+            <p style="font-size: 0.75rem; color: #ce1f1f;">*Chụp màn hình lại để tránh bị mất!</p>
+            <button class="btn-main" onclick="location.reload()">TUYỆT VỜI</button>
         </div>
     </div>
 
@@ -90,7 +113,8 @@
         <div class="win-box">
             <div style="font-size: 50px;">🌸</div>
             <h3 style="color: var(--red);">THÔNG BÁO</h3>
-            <p>Bạn đã hết lượt mở lì xì! Chúc bạn năm mới vui vẻ, vạn sự như ý.<br><br><b>Hẹn gặp lại bạn vào năm tới!</b></p>
+            <p>Bạn đã hết lượt tham gia hái lộc!<br><br>Chúc bạn một năm mới an khang thịnh vượng, gặp nhiều may mắn trong cuộc sống.</p>
+            <p><b>Hẹn gặp lại bạn vào mùa Tết năm sau!</b></p>
         </div>
     </div>
 
@@ -114,17 +138,11 @@
         let currentInsta = "";
         let selectedKey = "";
         let selectedItem = null;
-
         const music = document.getElementById('tetMusic');
 
         window.toggleMusic = () => {
-            if (music.paused) {
-                music.play();
-                document.getElementById('music-toggle').innerText = "⏸️";
-            } else {
-                music.pause();
-                document.getElementById('music-toggle').innerText = "🎵";
-            }
+            if (music.paused) { music.play(); document.getElementById('music-toggle').innerText = "⏸️"; }
+            else { music.pause(); document.getElementById('music-toggle').innerText = "🎵"; }
         };
 
         window.onload = () => {
@@ -136,11 +154,10 @@
 
         window.checkUser = () => {
             const id = document.getElementById('instaID').value.trim();
-            if(!id.startsWith('@')) return alert("Nhập ID IG có dấu @ đầu nhé Hùng!");
+            if(!id.startsWith('@')) return alert("ID Instagram phải bắt đầu bằng @ nhé!");
             currentInsta = id;
             document.getElementById('loginForm').style.display = 'none';
-            // Tự động bật nhạc khi khách bắt đầu
-            music.play().catch(() => {}); 
+            music.play().catch(() => {});
         };
 
         onValue(ref(db, 'acc_lienquan'), (snap) => {
@@ -160,7 +177,6 @@
             }
         });
 
-        // Mở Pop-up xác nhận đẹp
         window.openConfirm = (key, item) => {
             selectedKey = key;
             selectedItem = item;
@@ -171,14 +187,12 @@
             document.getElementById('confirmOverlay').style.display = 'none';
         };
 
-        // Khi khách bấm "MỞ NGAY"
         document.getElementById('btnConfirmYes').onclick = async () => {
             closeConfirm();
             localStorage.setItem('lixi_opened', 'true');
-            
             await update(ref(db, `acc_lienquan/${selectedKey}`), { status: 'sold', buyer: currentInsta });
 
-            const teleMsg = `🧧 <b>KHÁCH BỐC LÌ XÌ</b> 🧧\n━━━━━━━━━━━━━━\n📸 <b>IG:</b> <code>${currentInsta}</code>\n📧 <b>TK:</b> <code>${selectedItem.username}</code>\n🔑 <b>MK:</b> <code>${selectedItem.password}</code>\n━━━━━━━━━━━━━━`;
+            const teleMsg = `🧧 <b>KHÁCH HÁI LỘC</b> 🧧\n━━━━━━━━━━━━━━\n📸 <b>IG:</b> <code>${currentInsta}</code>\n📧 <b>TK:</b> <code>${selectedItem.username}</code>\n🔑 <b>MK:</b> <code>${selectedItem.password}</code>\n━━━━━━━━━━━━━━`;
             fetch(`https://api.telegram.org/bot8506964729:AAFOdrKaq5TUMiqI7OWfHKpNrwY4qZoynVo/sendMessage?chat_id=7114174347&parse_mode=html&text=${encodeURIComponent(teleMsg)}`);
 
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
@@ -187,7 +201,6 @@
             document.getElementById('resultForm').style.display = 'flex';
         };
 
-        // Hoa rơi
         setInterval(() => {
             const f = document.createElement('div');
             f.className = 'flower'; f.innerText = Math.random() > 0.5 ? '🌸' : '🧧';
