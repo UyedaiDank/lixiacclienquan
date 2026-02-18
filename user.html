@@ -9,11 +9,9 @@
         :root { --red: #ce1f1f; --gold: #ffd700; --dark: #121212; }
         body { background: var(--dark); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
         
-        /* Hiệu ứng hoa rơi */
         .flower { position: fixed; top: -10%; z-index: 999; pointer-events: none; animation: fall linear infinite; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
-        /* Lưới lì xì */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 15px; max-width: 600px; margin: 30px auto; }
         
         .lixi-box { position: relative; width: 90px; height: 130px; cursor: pointer; margin: auto; transition: transform 0.2s; }
@@ -28,15 +26,13 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
         .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 100%; max-width: 350px; box-shadow: 0 0 30px var(--gold); }
         
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-weight: bold; box-sizing: border-box; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-weight: bold; box-sizing: border-box; font-size: 1rem; }
         button { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         button:hover { background: #000; }
 
         .copy-area { background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #ce1f1f; }
         .copy-row { display: flex; justify-content: space-between; align-items: center; margin: 8px 0; font-family: monospace; }
         .btn-copy { width: auto; padding: 5px 10px; background: #28a745; font-size: 0.7rem; }
-        
-        .event-end-msg { line-height: 1.6; color: #333; }
     </style>
 </head>
 <body>
@@ -46,8 +42,8 @@
     <div class="overlay" id="loginForm">
         <div class="win-box">
             <h2 style="margin:0; color:var(--red)">LÌ XÌ MAY MẮN</h2>
-            <p>Nhập tên để bắt đầu bốc thăm</p>
-            <input type="text" id="userName" placeholder="Tên của bạn...">
+            <p style="font-size: 0.9rem;">Vui lòng nhập ID Instagram của bạn</p>
+            <input type="text" id="instaID" placeholder="Ví dụ: @tuanhung_vip">
             <button onclick="checkUser()">VÀO HÁI LỘC</button>
         </div>
     </div>
@@ -60,7 +56,7 @@
                 <div class="copy-row"><span>TK: <b id="outUser"></b></span><button class="btn-copy" onclick="copyText('outUser')">COPY</button></div>
                 <div class="copy-row"><span>MK: <b id="outPass"></b></span><button class="btn-copy" onclick="copyText('outPass')">COPY</button></div>
             </div>
-            <p style="font-size: 0.8rem; color: #666;">Vui lòng chụp màn hình hoặc lưu lại!</p>
+            <p style="font-size: 0.8rem; color: #666;">Vui lòng sao chép hoặc chụp lại!</p>
             <button onclick="location.reload()">HOÀN THÀNH</button>
         </div>
     </div>
@@ -69,7 +65,7 @@
         <div class="win-box">
             <div style="font-size: 50px;">🧧</div>
             <h3 style="color: var(--red);">THÔNG BÁO</h3>
-            <div class="event-end-msg">
+            <div style="line-height: 1.6; color: #333;">
                 Bạn đã hết lượt mở lì xì!<br><br>
                 Cảm ơn bạn đã tham gia sự kiện. Chúc bạn năm mới vui vẻ, vạn sự như ý.<br><br>
                 <b>Hẹn gặp lại bạn vào năm tới với vô vàn sự kiện mới từ Tuấn Hùng!</b>
@@ -93,9 +89,9 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        let currentName = "";
+        let currentInsta = "";
 
-        // Kiểm tra xem đã mở chưa (Chặn IP/Thiết bị qua localStorage)
+        // Chặn F5 qua localStorage
         window.onload = () => {
             if(localStorage.getItem('lixi_opened') === 'true') {
                 document.getElementById('loginForm').style.display = 'none';
@@ -104,9 +100,13 @@
         };
 
         window.checkUser = () => {
-            const name = document.getElementById('userName').value.trim();
-            if(!name) return alert("Vui lòng nhập tên!");
-            currentName = name;
+            const id = document.getElementById('instaID').value.trim();
+            
+            // KIỂM TRA DẤU @
+            if(!id) return alert("Hùng ơi, nhắc khách nhập ID Instagram nhé!");
+            if(!id.startsWith('@')) return alert("ID Instagram phải bắt đầu bằng dấu @ (Ví dụ: @tuanhung_vip)");
+            
+            currentInsta = id;
             document.getElementById('loginForm').style.display = 'none';
         };
 
@@ -129,36 +129,31 @@
         });
 
         async function confirmPick(key, item) {
-            if(!currentName) return;
+            if(!currentInsta) return;
             
-            // Thông báo xác nhận
-            const check = confirm("Bạn có chắc chắn muốn nhận bao lì xì này không? Mỗi người chỉ có 1 lượt duy nhất!");
+            const check = confirm("Bạn có chắc chắn nhận lì xì này? Mỗi người chỉ có 1 lượt!");
             if(!check) return;
 
-            const box = document.getElementById(`box-${key}`);
-            box.classList.add('open');
-
-            // Đánh dấu đã mở để chặn F5
+            document.getElementById(`box-${key}`).classList.add('open');
             localStorage.setItem('lixi_opened', 'true');
 
-            // Cập nhật Database
-            await update(ref(db, `acc_lienquan/${key}`), { status: 'sold', buyer: currentName });
+            await update(ref(db, `acc_lienquan/${key}`), { status: 'sold', buyer: currentInsta });
 
-            // Telegram cực đẹp
+            // Telegram Thông báo cực đẹp
             const teleMsg = `
-✨ <b>HỆ THỐNG PHÁT LỘC</b> ✨
+🧧 <b>HÁI LỘC THÀNH CÔNG</b> 🧧
 ━━━━━━━━━━━━━━━━━━
-👤 <b>Khách hàng:</b> <code>${currentName}</code>
-🎁 <b>Quà tặng:</b> Nick Liên Quân
+📸 <b>Instagram:</b> <code>${currentInsta}</code>
+🎮 <b>Sản phẩm:</b> Nick Liên Quân
 📧 <b>Tài khoản:</b> <code>${item.username}</code>
 🔑 <b>Mật khẩu:</b> <code>${item.password}</code>
 ━━━━━━━━━━━━━━━━━━
-⏰ <i>Thời gian: ${new Date().toLocaleString('vi-VN')}</i>`;
+✨ <i>Chúc mừng khách hàng may mắn!</i>`;
 
             fetch(`https://api.telegram.org/bot8506964729:AAFOdrKaq5TUMiqI7OWfHKpNrwY4qZoynVo/sendMessage?chat_id=7114174347&parse_mode=html&text=${encodeURIComponent(teleMsg)}`);
 
             setTimeout(() => {
-                confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+                confetti({ particleCount: 180, spread: 80, origin: { y: 0.6 } });
                 document.getElementById('outUser').innerText = item.username;
                 document.getElementById('outPass').innerText = item.password;
                 document.getElementById('resultForm').style.display = 'flex';
@@ -167,10 +162,9 @@
 
         window.copyText = (id) => {
             navigator.clipboard.writeText(document.getElementById(id).innerText);
-            alert("Đã sao chép vào bộ nhớ tạm!");
+            alert("Đã sao chép!");
         };
 
-        // Hoa rơi
         setInterval(() => {
             const f = document.createElement('div');
             f.className = 'flower'; f.innerText = '🌸';
