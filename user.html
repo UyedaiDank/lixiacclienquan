@@ -12,28 +12,25 @@
         .flower { position: fixed; top: -10%; z-index: 999; pointer-events: none; animation: fall linear infinite; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
         
-        /* Bảng lưu ý */
-        .warning-board { max-width: 500px; margin: 20px auto; background: rgba(255, 215, 0, 0.1); border: 2px solid var(--gold); border-radius: 15px; padding: 15px; }
+        .warning-board { max-width: 500px; margin: 20px auto; background: rgba(255, 215, 0, 0.1); border: 2px solid var(--gold); border-radius: 15px; padding: 15px; border-style: dashed; }
         
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 15px; max-width: 600px; margin: auto; }
-        .lixi-box { position: relative; width: 90px; height: 130px; cursor: pointer; margin: auto; }
-        .lixi-body { position: absolute; bottom: 0; width: 100%; height: 80%; background: var(--red); border: 2px solid var(--gold); border-radius: 0 0 10px 10px; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+        .lixi-box { position: relative; width: 90px; height: 130px; cursor: pointer; margin: auto; transition: 0.3s; }
+        .lixi-box:hover { transform: scale(1.05); }
+        .lixi-body { position: absolute; bottom: 0; width: 100%; height: 80%; background: var(--red); border: 2px solid var(--gold); border-radius: 0 0 10px 10px; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .lixi-cap { position: absolute; top: 10%; width: 100%; height: 30%; background: #b01a1a; border: 2px solid var(--gold); border-radius: 10px 10px 0 0; z-index: 3; transition: 0.5s; }
         .gift-inside { position: absolute; bottom: 10%; left: 5%; width: 90%; height: 60%; background: #fff; border-radius: 5px; color: #333; font-size: 0.65rem; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 1; transition: 1s; opacity: 0; }
         .lixi-box.open .lixi-cap { transform: rotateX(160deg); }
         .lixi-box.open .gift-inside { transform: translateY(-65px); opacity: 1; z-index: 4; }
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
-        .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 100%; max-width: 350px; }
+        .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 100%; max-width: 350px; text-align: center; }
         
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; text-align: center; box-sizing: border-box; }
-        .btn-main { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; display: block; text-decoration: none; }
-        
-        /* Nút Like FB */
-        .btn-fb { background: #1877F2; margin-bottom: 10px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
-        
-        .disabled { background: #ccc !important; cursor: not-allowed; opacity: 0.5; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; text-align: center; box-sizing: border-box; font-weight: bold; }
+        .btn-main { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; text-decoration: none; display: block; }
+        .btn-fb { background: #1877F2; margin-bottom: 15px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        .disabled { background: #ccc !important; cursor: not-allowed; opacity: 0.6; }
     </style>
 </head>
 <body>
@@ -41,8 +38,8 @@
     <h1>🧧 HÁI LỘC BÍNH NGỌ 2026 🧧</h1>
 
     <div class="warning-board">
-        <h3 style="color: var(--gold); margin: 0;">⚠️ LƯU Ý VẬN MAY</h3>
-        <p style="font-size: 0.85rem;">Acc Liên Quân có thể dính thông tin, bị ban hoặc có người vào. Chúc bạn năm mới rực rỡ! ✨</p>
+        <h3 style="color: var(--gold); margin: 0; font-size: 1rem;">⚠️ LƯU Ý VẬN MAY</h3>
+        <p style="font-size: 0.8rem; margin: 5px 0 0 0;">Acc Liên Quân có thể dính thông tin, bị ban hoặc có người vào. Tất cả tùy thuộc vào vận may của bạn. Chúc bạn năm mới rực rỡ! ✨</p>
     </div>
 
     <div class="grid" id="main-grid"></div>
@@ -50,35 +47,36 @@
     <div class="overlay" id="loginForm">
         <div class="win-box">
             <h2 style="color:var(--red); margin:0">BÍNH NGỌ PHÁT TÀI</h2>
-            <p style="font-size: 0.9rem; font-weight: bold;">Vui lòng Like bài viết ủng hộ Hùng trước khi bốc lộc nhé!</p>
+            <p style="font-size: 0.9rem; font-weight: bold; margin: 15px 0;">Vui lòng Like bài viết của Hùng để mở khóa bốc lì xì nhé!</p>
             
-            <a href="https://www.facebook.com/share/p/1XSAvnLMw5/" target="_blank" class="btn-main btn-fb" onclick="hasClickedLike()">1. BẤM VÀO ĐÂY ĐỂ LIKE TUS</a>
+            <a href="https://www.facebook.com/share/p/1XSAvnLMw5/" target="_blank" class="btn-main btn-fb" onclick="hasClickedLike()">1. BẤM VÀO ĐÂY ĐỂ LIKE</a>
             
-            <p style="font-size: 0.8rem;">Sau đó nhập Instagram để tiếp tục:</p>
-            <input type="text" id="instaID" placeholder="Ví dụ: @tuanhung_2026">
+            <input type="text" id="instaID" placeholder="Nhập ID Instagram (Ví dụ: @tuanhung)">
             
             <button class="btn-main disabled" id="entryBtn" onclick="checkUser()" disabled>2. VÀO HÁI LỘC</button>
-            <p id="msg-hint" style="font-size: 0.7rem; color: #888; margin-top: 5px;">(Bạn cần bấm vào nút Like màu xanh trước)</p>
+            <p id="msg-hint" style="font-size: 0.7rem; color: #888; margin-top: 8px;">(Bạn phải bấm nút Like màu xanh trước)</p>
         </div>
     </div>
 
     <div class="overlay" id="confirmOverlay" style="display: none;">
         <div class="win-box">
-            <h2>XÁC NHẬN</h2>
-            <p>Bạn có chắc chắn nhận bao lì xì này không?</p>
-            <button class="btn-main" id="btnConfirmYes">MỞ NGAY 🧧</button>
+            <span style="font-size: 40px;">🧧</span>
+            <h2 style="color: var(--red);">XÁC NHẬN</h2>
+            <p>Bạn có chắc chắn nhận bao lì xì này không? Mỗi người chỉ có 1 lượt duy nhất!</p>
+            <button class="btn-main" id="btnConfirmYes">MỞ LÌ XÌ NGAY</button>
             <button class="btn-main" style="background:#666" onclick="closeConfirm()">HỦY</button>
         </div>
     </div>
 
     <div class="overlay" id="resultForm" style="display: none;">
         <div class="win-box">
-            <h2 style="color:var(--red)">THÀNH CÔNG 🎉</h2>
-            <div style="background:#f4f4f4; padding:15px; border-radius:10px; border:1px dashed red">
-                <div>TK: <b id="outUser"></b></div>
-                <div>MK: <b id="outPass"></b></div>
+            <h2 style="color:var(--red); margin:0">THÀNH CÔNG 🎉</h2>
+            <p>Phần quà may mắn của bạn:</p>
+            <div style="background:#f4f4f4; padding:15px; border-radius:10px; border:1px dashed red; text-align: left;">
+                <div>Tài khoản: <b id="outUser"></b></div>
+                <div>Mật khẩu: <b id="outPass"></b></div>
             </div>
-            <p style="font-size:0.7rem; color:red">Hãy chụp màn hình lại ngay!</p>
+            <p style="font-size:0.75rem; color:red; margin-top:10px;"><b>Lưu ý:</b> Hãy chụp màn hình lại ngay!</p>
             <button class="btn-main" onclick="location.reload()">TUYỆT VỜI</button>
         </div>
     </div>
@@ -86,9 +84,9 @@
     <div class="overlay" id="blockForm" style="display: none;">
         <div class="win-box">
             <div style="font-size:50px">🌸</div>
-            <h3>HẾT LƯỢT</h3>
-            <p>Bạn đã hái lộc rồi. Chúc bạn năm mới Bính Ngọ vạn sự như ý!</p>
-            <p><b>Hẹn gặp lại bạn vào năm tới!</b></p>
+            <h3 style="color: var(--red);">THÔNG BÁO</h3>
+            <p>Bạn đã tham gia hái lộc rồi!<br>Chúc bạn năm mới Bính Ngọ vạn sự như ý, tỷ sự như mơ.</p>
+            <p><b>Hẹn gặp lại bạn vào mùa Tết tiếp theo!</b></p>
         </div>
     </div>
 
@@ -111,7 +109,7 @@
         let currentInsta = "", selectedKey = "", selectedItem = null, serverEventID = 0;
         let clickedLike = false;
 
-        // Xử lý khi khách bấm Like
+        // Xử lý khi khách bấm Like Facebook
         window.hasClickedLike = () => {
             clickedLike = true;
             const btn = document.getElementById('entryBtn');
@@ -121,6 +119,7 @@
             document.getElementById('msg-hint').style.color = "green";
         };
 
+        // Kiểm tra Reset hệ thống để mở chặn cho khách
         async function checkBlockStatus() {
             const snap = await get(ref(db, 'event_config/id'));
             serverEventID = snap.val() || 0;
@@ -139,9 +138,8 @@
         checkBlockStatus();
 
         window.checkUser = () => {
-            if(!clickedLike) return alert("Hùng yêu cầu bạn phải bấm vào nút Like bài viết trước nhé!");
             const id = document.getElementById('instaID').value.trim();
-            if(!id.startsWith('@')) return alert("ID Instagram phải có @ nhé Hùng!");
+            if(!id.startsWith('@')) return alert("ID Instagram phải bắt đầu bằng @ nhé Hùng!");
             currentInsta = id;
             document.getElementById('loginForm').style.display = 'none';
         };
@@ -157,8 +155,7 @@
                         box.className = 'lixi-box';
                         box.innerHTML = `<div class="lixi-cap"></div><div class="gift-inside">LIÊN QUÂN</div><div class="lixi-body">🧧</div>`;
                         box.onclick = () => { 
-                            selectedKey=key; 
-                            selectedItem=data[key]; 
+                            selectedKey=key; selectedItem=data[key]; 
                             document.getElementById('confirmOverlay').style.display='flex'; 
                         };
                         grid.appendChild(box);
@@ -176,15 +173,28 @@
             
             await update(ref(db, `acc_lienquan/${selectedKey}`), { status: 'sold', buyer: currentInsta });
 
-            const teleMsg = `🧧 <b>BÍNH NGỌ 2026</b> 🧧\n👤 <b>Khách:</b> <code>${currentInsta}</code>\n📧 <b>TK:</b> <code>${selectedItem.username}</code>\n🔑 <b>MK:</b> <code>${selectedItem.password}</code>`;
+            // Thông báo Telegram với Spoiler (che TK/MK)
+            const teleMsg = `
+🧧 <b>HÁI LỘC BÍNH NGỌ 2026</b> 🧧
+━━━━━━━━━━━━━━━━━━
+📸 <b>Instagram:</b> <code>${currentInsta}</code>
+🎮 <b>Quà tặng:</b> Nick Liên Quân
+
+📧 <b>Tài khoản:</b> <tg-spoiler>${selectedItem.username}</tg-spoiler>
+🔑 <b>Mật khẩu:</b> <tg-spoiler>${selectedItem.password}</tg-spoiler>
+
+⏰ <i>${new Date().toLocaleString('vi-VN')}</i>
+━━━━━━━━━━━━━━━━━━`;
+
             fetch(`https://api.telegram.org/bot8506964729:AAFOdrKaq5TUMiqI7OWfHKpNrwY4qZoynVo/sendMessage?chat_id=7114174347&parse_mode=html&text=${encodeURIComponent(teleMsg)}`);
 
-            confetti({ particleCount: 150, spread: 70 });
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             document.getElementById('outUser').innerText = selectedItem.username;
             document.getElementById('outPass').innerText = selectedItem.password;
             document.getElementById('resultForm').style.display = 'flex';
         };
 
+        // Hoa mai hoa đào rơi
         setInterval(() => {
             const f = document.createElement('div');
             f.className = 'flower'; f.innerText = Math.random() > 0.5 ? '🌸' : '🧧';
