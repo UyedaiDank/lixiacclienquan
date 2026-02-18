@@ -9,8 +9,30 @@
         :root { --red: #ce1f1f; --gold: #ffd700; --dark: #121212; }
         body { background: var(--dark); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
         
+        /* Hiệu ứng hoa rơi */
         .flower { position: fixed; top: -10%; z-index: 999; pointer-events: none; animation: fall linear infinite; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+
+        /* Hiệu ứng chữ chạy thông báo bốc trúng */
+        .win-notif {
+            position: fixed;
+            white-space: nowrap;
+            color: var(--gold);
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            z-index: 1000;
+            pointer-events: none;
+            background: rgba(206, 31, 31, 0.8);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            animation: moveSide linear forwards;
+        }
+        @keyframes moveSide {
+            from { left: 110vw; }
+            to { left: -110vw; }
+        }
         
         .warning-board { max-width: 500px; margin: 20px auto; background: rgba(255, 215, 0, 0.1); border: 2px solid var(--gold); border-radius: 15px; padding: 15px; border-style: dashed; }
         
@@ -109,7 +131,23 @@
         let currentInsta = "", selectedKey = "", selectedItem = null, serverEventID = 0;
         let clickedLike = false;
 
-        // Xử lý khi khách bấm Like Facebook
+        // Xử lý thông báo bốc trúng tài khoản
+        function spawnWinNotif(insta, user) {
+            const notif = document.createElement('div');
+            notif.className = 'win-notif';
+            // Che tài khoản kiểu abc***cba
+            const maskedUser = user.length > 4 ? user.substring(0,3) + "***" + user.substring(user.length - 3) : "***";
+            notif.innerText = `🧧 Kiện tướng ${insta} đã bốc trúng tài khoản ${maskedUser}`;
+            
+            // Random vị trí chiều cao
+            notif.style.top = Math.random() * 70 + 10 + "vh";
+            // Random tốc độ bay (từ 8s đến 15s)
+            notif.style.animationDuration = Math.random() * 7 + 8 + "s";
+            
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 15000);
+        }
+
         window.hasClickedLike = () => {
             clickedLike = true;
             const btn = document.getElementById('entryBtn');
@@ -119,17 +157,14 @@
             document.getElementById('msg-hint').style.color = "green";
         };
 
-        // Kiểm tra Reset hệ thống để mở chặn cho khách
         async function checkBlockStatus() {
             const snap = await get(ref(db, 'event_config/id'));
             serverEventID = snap.val() || 0;
             const localEventID = localStorage.getItem('lixi_event_id');
-
             if (serverEventID.toString() !== localEventID) {
                 localStorage.removeItem('lixi_opened');
                 localStorage.setItem('lixi_event_id', serverEventID);
             }
-
             if(localStorage.getItem('lixi_opened') === 'true') {
                 document.getElementById('loginForm').style.display = 'none';
                 document.getElementById('blockForm').style.display = 'flex';
@@ -150,7 +185,13 @@
             grid.innerHTML = '';
             if(data) {
                 Object.keys(data).forEach((key) => {
-                    if(data[key].status === 'available') {
+                    const item = data[key];
+                    // Nếu nick đã được bán, thi thoảng tạo hiệu ứng chữ rơi thông báo cho vui
+                    if(item.status === 'sold' && Math.random() > 0.7) {
+                        spawnWinNotif(item.buyer, item.username);
+                    }
+                    
+                    if(item.status === 'available') {
                         const box = document.createElement('div');
                         box.className = 'lixi-box';
                         box.innerHTML = `<div class="lixi-cap"></div><div class="gift-inside">LIÊN QUÂN</div><div class="lixi-body">🧧</div>`;
@@ -170,31 +211,20 @@
             closeConfirm();
             localStorage.setItem('lixi_opened', 'true');
             localStorage.setItem('lixi_event_id', serverEventID);
-            
             await update(ref(db, `acc_lienquan/${selectedKey}`), { status: 'sold', buyer: currentInsta });
 
-            // Thông báo Telegram với Spoiler (che TK/MK)
-            const teleMsg = `
-🧧 <b>HÁI LỘC BÍNH NGỌ 2026</b> 🧧
-━━━━━━━━━━━━━━━━━━
-📸 <b>Instagram:</b> <code>${currentInsta}</code>
-🎮 <b>Quà tặng:</b> Nick Liên Quân
-
-📧 <b>Tài khoản:</b> <tg-spoiler>${selectedItem.username}</tg-spoiler>
-🔑 <b>Mật khẩu:</b> <tg-spoiler>${selectedItem.password}</tg-spoiler>
-
-⏰ <i>${new Date().toLocaleString('vi-VN')}</i>
-━━━━━━━━━━━━━━━━━━`;
-
+            const teleMsg = `🧧 <b>HÁI LỘC BÍNH NGỌ 2026</b> 🧧\n━━━━━━━━━━━━━━━━━━\n📸 <b>Instagram:</b> <code>${currentInsta}</code>\n🎮 <b>Quà tặng:</b> Nick Liên Quân\n\n📧 <b>Tài khoản:</b> <tg-spoiler>${selectedItem.username}</tg-spoiler>\n🔑 <b>Mật khẩu:</b> <tg-spoiler>${selectedItem.password}</tg-spoiler>\n\n⏰ <i>${new Date().toLocaleString('vi-VN')}</i>\n━━━━━━━━━━━━━━━━━━`;
             fetch(`https://api.telegram.org/bot8506964729:AAFOdrKaq5TUMiqI7OWfHKpNrwY4qZoynVo/sendMessage?chat_id=7114174347&parse_mode=html&text=${encodeURIComponent(teleMsg)}`);
 
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             document.getElementById('outUser').innerText = selectedItem.username;
             document.getElementById('outPass').innerText = selectedItem.password;
             document.getElementById('resultForm').style.display = 'flex';
+            
+            // Hiện thông báo bay của chính mình vừa bốc
+            spawnWinNotif(currentInsta, selectedItem.username);
         };
 
-        // Hoa mai hoa đào rơi
         setInterval(() => {
             const f = document.createElement('div');
             f.className = 'flower'; f.innerText = Math.random() > 0.5 ? '🌸' : '🧧';
