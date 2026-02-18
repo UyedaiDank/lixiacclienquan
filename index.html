@@ -2,58 +2,37 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Quản Lý Kho Nick</title>
+    <title>Admin - Quản Lý Kho Nick Bính Ngọ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { background: #f4f4f4; font-family: sans-serif; padding: 20px; }
         .container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h2 { color: #ce1f1f; text-align: center; margin-bottom: 5px; }
-        textarea { width: 100%; height: 150px; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: monospace; }
-        
+        h2 { color: #ce1f1f; text-align: center; }
+        textarea { width: 100%; height: 150px; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
-        button { flex: 2; padding: 15px; background: #ce1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; }
-        button:hover { background: #b01a1a; }
-        
-        /* Nút Reset đặc biệt */
-        .btn-reset { flex: 1; background: #ff9f43; color: white; }
-        .btn-reset:hover { background: #ee5253; }
-
+        button { flex: 2; padding: 15px; background: #ce1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-reset { flex: 1; background: #ff9f43; }
         .stats { display: flex; justify-content: space-around; margin: 20px 0; background: #fff5f5; padding: 15px; border-radius: 10px; border: 1px solid #ffebeb; }
-        .stats b { color: #ce1f1f; font-size: 1.2rem; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.85rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: #eee; }
-        .sold { color: #aaa; text-decoration: line-through; background: #fafafa; }
-        .btn-delete { background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.75rem; }
+        .btn-delete { background: #ff4757; color: white; border: none; padding: 5px; border-radius: 3px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>QUẢN TRỊ VIÊN - TUẤN HÙNG</h2>
-        <p style="text-align: center; font-size: 0.85rem; color: #666; margin-bottom: 15px;">Dán danh sách <b>tài khoản | mật khẩu</b> để nạp nick</p>
-        
-        <textarea id="bulkInput" placeholder="garena_user1|pass123&#10;garena_user2|pass456"></textarea>
-        
+        <h2>QUẢN TRỊ VIÊN - BÍNH NGỌ 2026</h2>
+        <textarea id="bulkInput" placeholder="Tài khoản | Mật khẩu"></textarea>
         <div class="btn-group">
-            <button onclick="bulkAdd()">NẠP NICK VÀO KHO</button>
-            <button class="btn-reset" onclick="resetSystem()">RESET TẤT CẢ</button>
+            <button onclick="bulkAdd()">NẠP NICK</button>
+            <button class="btn-reset" onclick="resetSystem()">RESET TOÀN BỘ</button>
         </div>
-
         <div class="stats">
-            <div>Tổng nick: <br><b id="st-total">0</b></div>
-            <div>Còn lại: <br><b id="st-avai">0</b></div>
-            <div>Đã bốc: <br><b id="st-sold">0</b></div>
+            <div>Tổng: <b id="st-total">0</b></div>
+            <div>Còn: <b id="st-avai">0</b></div>
+            <div>Đã bốc: <b id="st-sold">0</b></div>
         </div>
-
         <table>
-            <thead>
-                <tr>
-                    <th>Thông tin Tài khoản</th>
-                    <th>Trạng thái</th>
-                    <th>Xóa</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Nick</th><th>Khách bốc</th><th>Xóa</th></tr></thead>
             <tbody id="tbody"></tbody>
         </table>
     </div>
@@ -71,72 +50,43 @@
             appId: "1:435779880249:web:8d80abab3817923369d4e8",
             databaseURL: "https://lixiacclienquan-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // NẠP NICK MỚI
         window.bulkAdd = async () => {
             const input = document.getElementById('bulkInput').value.trim();
-            if(!input) return alert("Hùng ơi, dán danh sách nick vào đã!");
+            if(!input) return;
             const lines = input.split('\n');
             for (let line of lines) {
                 if (line.includes('|')) {
                     const [u, p] = line.split('|');
-                    await set(push(ref(db, 'acc_lienquan')), { 
-                        username: u.trim(), 
-                        password: p.trim(), 
-                        status: 'available', 
-                        buyer: '' 
-                    });
+                    await set(push(ref(db, 'acc_lienquan')), { username: u.trim(), password: p.trim(), status: 'available', buyer: '' });
                 }
             }
-            alert("Đã nạp thành công!");
             document.getElementById('bulkInput').value = '';
         };
 
-        // RESET TOÀN BỘ HỆ THỐNG
-        window.resetSystem = () => {
-            const code = confirm("⚠️ CẢNH BÁO: Hành động này sẽ xóa sạch TOÀN BỘ nick và dữ liệu người đã bốc. Bạn có chắc chắn muốn làm mới hệ thống không?");
-            if(code) {
-                const secondCheck = confirm("Hỏi lại lần nữa: Bạn chắc chắn chứ? Dữ liệu không thể khôi phục!");
-                if(secondCheck) {
-                    remove(ref(db, 'acc_lienquan'))
-                    .then(() => alert("Hệ thống đã được làm mới hoàn toàn!"))
-                    .catch((err) => alert("Lỗi khi reset: " + err));
-                }
+        window.resetSystem = async () => {
+            if(confirm("Xóa sạch toàn bộ và cho phép tất cả mọi người bốc lại từ đầu?")) {
+                await remove(ref(db, 'acc_lienquan'));
+                // Tạo ID sự kiện mới để mở chặn cho các máy khách
+                await set(ref(db, 'event_config/id'), Date.now());
+                alert("Đã Reset sạch sẽ!");
             }
         };
 
-        // XÓA TỪNG NICK
-        window.deleteAcc = (id) => {
-            if(confirm("Xóa nick này?")) {
-                remove(ref(db, `acc_lienquan/${id}`));
-            }
-        };
+        window.deleteAcc = (id) => remove(ref(db, `acc_lienquan/${id}`));
 
-        // HIỂN THỊ DỮ LIỆU
         onValue(ref(db, 'acc_lienquan'), (snap) => {
             const data = snap.val();
             const tbody = document.getElementById('tbody');
             tbody.innerHTML = '';
-            let t = 0, a = 0, s = 0;
-            
-            if (data) {
-                const keys = Object.keys(data).reverse();
-                keys.forEach(id => {
-                    const item = data[id];
-                    t++;
-                    const isSold = item.status === 'sold';
-                    if (isSold) s++; else a++;
-                    
-                    tbody.innerHTML += `
-                        <tr class="${isSold ? 'sold' : ''}">
-                            <td><b>${item.username}</b> | <small>${item.password}</small></td>
-                            <td>${isSold ? 'Đã bốc ('+item.buyer+')' : '<span style="color:green">Sẵn sàng</span>'}</td>
-                            <td><button class="btn-delete" onclick="deleteAcc('${id}')">X</button></td>
-                        </tr>
-                    `;
+            let t=0, a=0, s=0;
+            if(data) {
+                Object.keys(data).reverse().forEach(id => {
+                    const item = data[id]; t++;
+                    if(item.status === 'sold') s++; else a++;
+                    tbody.innerHTML += `<tr><td>${item.username}</td><td>${item.buyer || '-'}</td><td><button class="btn-delete" onclick="deleteAcc('${id}')">Xóa</button></td></tr>`;
                 });
             }
             document.getElementById('st-total').innerText = t;
