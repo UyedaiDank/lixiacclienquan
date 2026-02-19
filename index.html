@@ -27,15 +27,16 @@
         .tag { padding: 3px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; color: white; }
         .sss { background: #ff4757; } .ss { background: #ffa502; } .random { background: #2f3542; }
         
-        .btn-del { background: #ff4757; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
-        .btn-refresh { background: #2ed573; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; margin-right: 5px; }
+        .btn-del { width: 100%; background: #ff4757; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-del:hover { background: #c0392b; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
         .status-sold { background: #fff9db; color: #856404; }
         .status-avail { color: #2ed573; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🧧 QUẢN LÝ TỔNG HỢP - TUẤN HÙNG 🧧</h2>
+        <h2>🧧 QUẢN LÝ TỔNG HỢP - SHOP TUẤN HÙNG 🧧</h2>
         
         <div class="form-group">
             <label>Nạp Nick Mới:</label>
@@ -45,7 +46,7 @@
                     <option value="SS">🌟 ACC SS</option>
                     <option value="Random">🎁 ACC RANDOM</option>
                 </select>
-                <textarea id="bulkInput" style="flex:2" placeholder="User|Pass (Mỗi dòng 1 nick)"></textarea>
+                <textarea id="bulkInput" style="flex:2" placeholder="Định dạng: User|Pass (Mỗi nick 1 dòng)"></textarea>
             </div>
             <div class="btn-group">
                 <button onclick="bulkAdd()">NẠP VÀO KHO</button>
@@ -76,8 +77,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, onValue, set, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // Cấu hình Firebase (Giữ nguyên của bạn)
         const firebaseConfig = {
             apiKey: "AIzaSyA9uVdTdtEhxpH3qn9v2g2pCD-9X-C6jic",
             authDomain: "lixiacclienquan.firebaseapp.com",
@@ -90,11 +92,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Nạp Nick
+        // Chức năng nạp Nick
         window.bulkAdd = async () => {
             const type = document.getElementById('accType').value;
             const input = document.getElementById('bulkInput').value.trim();
-            if(!input) return alert("Nhập data đi Hùng ơi!");
+            if(!input) return alert("Vui lòng nhập danh sách!");
             const lines = input.split('\n');
             for (let line of lines) {
                 if (line.includes('|')) {
@@ -106,32 +108,27 @@
                 }
             }
             document.getElementById('bulkInput').value = '';
-            alert("Đã nạp xong!");
+            alert("Đã nạp thành công!");
         };
 
-        // Xóa sạch (Reset sự kiện)
+        // Xóa sạch toàn bộ (Reset sự kiện cho khách mới)
         window.resetAll = async () => {
-            if(confirm("Xóa sạch toàn bộ Nick và Lịch sử bốc? Khách sẽ bốc lại được từ đầu.")) {
+            if(confirm("XÓA TẤT CẢ: Hành động này xóa sạch kho nick và lịch sử khách bốc. Bạn chắc chứ?")) {
                 await remove(ref(db, 'acc_lienquan'));
                 await set(ref(db, 'event_config/id'), Date.now());
-                alert("Đã reset trắng hệ thống!");
+                alert("Hệ thống đã được làm mới hoàn toàn!");
             }
         };
 
-        // RESET LƯỢT (Giữ nick, đuổi khách cũ để nick quay lại kho)
-        window.resetSlot = async (id) => {
-            if(confirm("Giải phóng nick này? Khách cũ sẽ mất quyền xem, nick quay lại kho.")) {
-                await update(ref(db, `acc_lienquan/${id}`), { status: 'available', buyer: '' });
-            }
-        };
-
-        // XÓA VĨNH VIỄN (Gộp xóa nick và xóa lượt)
-        window.deleteEntry = (id) => {
-            if(confirm("Xóa vĩnh viễn nick này khỏi hệ thống?")) {
+        // XÓA MỘT DÒNG: Xóa luôn cả Account và Lượt bốc của khách
+        window.deleteEntry = (id, isSold) => {
+            let msg = isSold ? "Nick này ĐÃ CÓ người bốc. Xóa sẽ mất cả nick và lượt bốc của khách. Đồng ý?" : "Xóa vĩnh viễn nick này khỏi kho?";
+            if(confirm(msg)) {
                 remove(ref(db, `acc_lienquan/${id}`));
             }
         };
 
+        // Lắng nghe dữ liệu
         onValue(ref(db, 'acc_lienquan'), (snap) => {
             const data = snap.val();
             const body = document.getElementById('mainBody');
@@ -155,8 +152,7 @@
                         <td>${isSold ? '👤 ' + item.buyer : '-'}</td>
                         <td>${isSold ? '❌ Đã bốc' : '<span class="status-avail">🟢 Sẵn sàng</span>'}</td>
                         <td>
-                            ${isSold ? `<button class="btn-refresh" onclick="resetSlot('${id}')" title="Đưa nick về kho">Reset Lượt</button>` : ''}
-                            <button class="btn-del" onclick="deleteEntry('${id}')">XÓA</button>
+                            <button class="btn-del" onclick="deleteEntry('${id}', ${isSold})">XÓA</button>
                         </td>
                     </tr>`;
                 });
