@@ -13,8 +13,14 @@
         .flower { position: fixed; top: -10%; z-index: 999; pointer-events: none; animation: fall linear infinite; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
-        /* Bảng kho còn lại */
-        .stock-board { display: flex; justify-content: center; gap: 10px; margin: 15px 0; font-size: 0.8rem; }
+        /* Bảng thông báo rủi ro */
+        .risk-announcement { max-width: 500px; margin: 10px auto 20px; background: rgba(255, 0, 0, 0.1); border: 1px solid #ff4757; border-radius: 12px; padding: 15px; text-align: left; }
+        .risk-title { color: #ff4757; font-weight: bold; font-size: 0.9rem; margin-bottom: 10px; text-align: center; text-decoration: underline; }
+        .risk-list { margin: 0; padding-left: 20px; font-size: 0.8rem; color: #ffd700; line-height: 1.5; }
+        .risk-list li { margin-bottom: 5px; }
+
+        /* Thống kê kho */
+        .stock-board { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; font-size: 0.8rem; }
         .stock-item { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--gold); }
         .stock-item b { color: var(--gold); font-size: 1rem; }
 
@@ -22,6 +28,7 @@
         .win-notif { position: fixed; white-space: nowrap; color: var(--gold); font-weight: bold; font-size: 0.85rem; z-index: 1000; pointer-events: none; background: rgba(206, 31, 31, 0.9); padding: 7px 15px; border-radius: 20px; border: 1px solid var(--gold); box-shadow: 0 0 15px rgba(255,215,0,0.3); animation: moveSide linear forwards; }
         @keyframes moveSide { from { left: 110vw; } to { left: -110vw; } }
         
+        /* Grid lì xì */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 15px; max-width: 600px; margin: auto; }
         .lixi-box { position: relative; width: 85px; height: 120px; cursor: pointer; margin: auto; transition: 0.3s; }
         .lixi-box:hover { transform: translateY(-5px); }
@@ -31,9 +38,9 @@
         .lixi-box.open .lixi-cap { transform: rotateX(160deg); }
         .lixi-box.open .gift-inside { transform: translateY(-60px); opacity: 1; z-index: 4; }
 
+        /* Overlay & Popups */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
         .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 100%; max-width: 350px; text-align: center; }
-        
         input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; text-align: center; box-sizing: border-box; font-weight: bold; }
         .btn-main { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; text-decoration: none; display: block; }
         .btn-fb { background: #1877F2; margin-bottom: 10px; animation: pulse 2s infinite; }
@@ -43,7 +50,16 @@
 </head>
 <body>
 
-    <h1 style="margin-bottom: 5px;">🧧 HÁI LỘC BÍNH NGỌ 2026 🧧</h1>
+    <h1>🧧 HÁI LỘC BÍNH NGỌ 2026 🧧</h1>
+
+    <div class="risk-announcement">
+        <div class="risk-title">⚠️ THÔNG BÁO QUAN TRỌNG</div>
+        <ul class="risk-list">
+            <li>Lì xì là ngẫu nhiên, có thể trúng Acc <b>Sai pass, Bị khóa</b> hoặc <b>Có người chơi</b>.</li>
+            <li>Hệ thống <b>không bảo hành</b> hoặc đổi trả dưới mọi hình thức.</li>
+            <li>Sau khi trúng, hãy <b>Tag Instagram @user.dth</b> để được bảo lưu vận may.</li>
+        </ul>
+    </div>
 
     <div class="stock-board">
         <div class="stock-item">💎 SSS: <b id="count-sss">0</b></div>
@@ -56,7 +72,7 @@
     <div class="overlay" id="loginForm">
         <div class="win-box">
             <h2 style="color:var(--red); margin:0">BÍNH NGỌ PHÁT TÀI</h2>
-            <p style="font-size: 0.85rem; margin: 15px 0;">Vui lòng Like bài viết để mở khóa bốc lộc nhé!</p>
+            <p style="font-size: 0.85rem; margin: 15px 0;">Vui lòng Like bài viết để mở khóa bốc lộc!</p>
             <a href="https://www.facebook.com/share/p/1XSAvnLMw5/" target="_blank" class="btn-main btn-fb" onclick="hasClickedLike()">1. BẤM LIKE TẠI ĐÂY</a>
             <input type="text" id="instaID" placeholder="Nhập @Instagram của bạn">
             <button class="btn-main disabled" id="entryBtn" onclick="checkUser()" disabled>2. VÀO HÁI LỘC</button>
@@ -66,7 +82,7 @@
     <div class="overlay" id="confirmOverlay" style="display: none;">
         <div class="win-box">
             <h2 style="color: var(--red);">XÁC NHẬN</h2>
-            <p>Bạn có chắc chắn muốn mở bao lì xì này không? (Chỉ 1 lượt duy nhất)</p>
+            <p>Bạn có chắc muốn mở bao lì xì này không?<br>(Mỗi người chỉ có 1 lượt duy nhất)</p>
             <button class="btn-main" id="btnConfirmYes">MỞ NGAY 🧧</button>
             <button class="btn-main" style="background:#666" onclick="closeConfirm()">HỦY</button>
         </div>
@@ -75,12 +91,12 @@
     <div class="overlay" id="resultForm" style="display: none;">
         <div class="win-box">
             <h2 style="color:var(--red); margin:0">THÀNH CÔNG 🎉</h2>
-            <p style="font-size: 0.9rem; font-weight: bold;">Bạn nhận được: <span id="outType" style="color: #d35400;"></span></p>
+            <p style="font-size: 0.9rem; font-weight: bold;">Bạn đã trúng: <span id="outType" style="color: #d35400;"></span></p>
             <div style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px dashed red; text-align: left; font-family: monospace;">
                 <div>Tài khoản: <b id="outUser"></b></div>
                 <div>Mật khẩu: <b id="outPass"></b></div>
             </div>
-            <p style="font-size:0.75rem; color: #444; margin-top:15px; line-height: 1.4;">❤️ <b>Lời nhắn:</b> Đăng nhập xong bạn nhớ <b>tag Instagram shop</b> <span style="color: blue; font-weight: bold;">@user.dth</span> vào Story để Hùng tặng thêm quà lần sau nhé!</p>
+            <p style="font-size:0.75rem; color: #444; margin-top:15px; line-height: 1.4;">🧧 <b>Lời nhắn:</b> Đăng nhập thành công nhớ <b>Tag Instagram</b> <span style="color: blue; font-weight: bold;">@user.dth</span> vào Story để Hùng tặng thêm quà nhé!</p>
             <button class="btn-main" onclick="location.reload()">TUYỆT VỜI</button>
         </div>
     </div>
@@ -89,7 +105,7 @@
         <div class="win-box">
             <div style="font-size:50px">🌸</div>
             <h3>BẠN ĐÃ HẾT LƯỢT</h3>
-            <p>Hẹn gặp lại kiện tướng vào mùa Tết tiếp theo!</p>
+            <p>Mỗi kiện tướng chỉ được hái lộc 1 lần.<br>Chúc bạn năm mới Bính Ngọ vạn sự như ý!</p>
         </div>
     </div>
 
@@ -111,14 +127,13 @@
         
         let currentInsta = "", selectedKey = "", selectedItem = null, serverEventID = 0, clickedLike = false;
 
-        // Hiệu ứng chữ chạy
         function spawnWinNotif(insta, user, type) {
             const notif = document.createElement('div');
             notif.className = 'win-notif';
             const masked = user.length > 4 ? user.substring(0,2) + "***" + user.substring(user.length-2) : "***";
             const icon = type === 'SSS' ? '💎' : (type === 'SS' ? '🌟' : '🎁');
             notif.innerText = `🧧 Kiện tướng ${insta} vừa bốc trúng Acc ${icon}${type} (${masked})`;
-            notif.style.top = Math.random() * 65 + 15 + "vh";
+            notif.style.top = Math.random() * 60 + 20 + "vh";
             notif.style.animationDuration = Math.random() * 5 + 8 + "s";
             document.body.appendChild(notif);
             setTimeout(() => notif.remove(), 13000);
@@ -146,7 +161,7 @@
 
         window.checkUser = () => {
             const id = document.getElementById('instaID').value.trim();
-            if(!id.startsWith('@')) return alert("ID Instagram phải có dấu @ nhé!");
+            if(!id.startsWith('@')) return alert("ID Instagram phải bắt đầu bằng @!");
             currentInsta = id;
             document.getElementById('loginForm').style.display = 'none';
         };
@@ -184,7 +199,6 @@
             localStorage.setItem('lixi_event_id', serverEventID);
             await update(ref(db, `acc_lienquan/${selectedKey}`), { status: 'sold', buyer: currentInsta });
 
-            // Gửi Telegram VIP
             const typeIcon = selectedItem.type === 'SSS' ? '💎' : (selectedItem.type === 'SS' ? '🌟' : '🎁');
             const teleMsg = `
 ✨ <b>HỆ THỐNG HÁI LỘC BÍNH NGỌ 2026</b> ✨
