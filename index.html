@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Quản Lý Kho & Khách Hàng 2026</title>
+    <title>Admin - Quản Lý Tổng Hợp 2026</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; padding: 20px; }
@@ -11,7 +11,7 @@
         .form-group { background: #fff5f5; padding: 20px; border-radius: 10px; border: 1px solid #ffebeb; margin-bottom: 20px; }
         label { font-weight: bold; display: block; margin-bottom: 8px; }
         select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; font-size: 1rem; }
-        textarea { height: 100px; }
+        textarea { height: 80px; }
         .btn-group { display: flex; gap: 10px; }
         button { flex: 2; padding: 12px; background: #ce1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .btn-reset { flex: 1; background: #ff9f43; }
@@ -20,35 +20,36 @@
         .stats div { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #ddd; }
         .stats b { display: block; font-size: 1.5rem; color: #ce1f1f; }
 
-        .section-title { background: #333; color: #fff; padding: 10px; border-radius: 5px; margin-top: 30px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 0.85rem; }
         th, td { border: 1px solid #eee; padding: 10px; text-align: left; }
-        th { background: #f8f9fa; }
+        th { background: #333; color: #fff; }
         
         .tag { padding: 3px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; color: white; }
         .sss { background: #ff4757; } .ss { background: #ffa502; } .random { background: #2f3542; }
         
-        .btn-del { background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .btn-clear-user { background: #2ed573; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .sold { background: #fff9db; }
+        .btn-del { background: #ff4757; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
+        .btn-refresh { background: #2ed573; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; margin-right: 5px; }
+        .status-sold { background: #fff9db; color: #856404; }
+        .status-avail { color: #2ed573; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🧧 QUẢN TRỊ VIÊN - SHOP TUẤN HÙNG 🧧</h2>
+        <h2>🧧 QUẢN LÝ TỔNG HỢP - TUẤN HÙNG 🧧</h2>
         
         <div class="form-group">
-            <label>Loại tài khoản:</label>
-            <select id="accType">
-                <option value="SSS">💎 ACC SSS</option>
-                <option value="SS">🌟 ACC SS</option>
-                <option value="Random">🎁 ACC RANDOM</option>
-            </select>
-            <label>Danh sách (User|Pass):</label>
-            <textarea id="bulkInput" placeholder="User|Pass"></textarea>
+            <label>Nạp Nick Mới:</label>
+            <div style="display:flex; gap:10px">
+                <select id="accType" style="flex:1">
+                    <option value="SSS">💎 ACC SSS</option>
+                    <option value="SS">🌟 ACC SS</option>
+                    <option value="Random">🎁 ACC RANDOM</option>
+                </select>
+                <textarea id="bulkInput" style="flex:2" placeholder="User|Pass (Mỗi dòng 1 nick)"></textarea>
+            </div>
             <div class="btn-group">
-                <button onclick="bulkAdd()">NẠP NICK</button>
-                <button class="btn-reset" onclick="resetSystem()">XÓA HẾT DATA (LÀM MỚI SỰ KIỆN)</button>
+                <button onclick="bulkAdd()">NẠP VÀO KHO</button>
+                <button class="btn-reset" onclick="resetAll()">XÓA SẠCH TẤT CẢ DATA</button>
             </div>
         </div>
 
@@ -59,29 +60,17 @@
             <div>Còn RD<b id="st-rd">0</b></div>
         </div>
 
-        <div class="section-title">👥 DANH SÁCH KHÁCH ĐÃ BỐC (CÓ THỂ XÓA ĐỂ KHÁCH BỐC LẠI)</div>
-        <table id="userTable">
-            <thead>
-                <tr>
-                    <th>Instagram</th>
-                    <th>Loại Acc</th>
-                    <th>Tài khoản | Mật khẩu</th>
-                    <th>Hành động</th>
-                </tr>
-            </thead>
-            <tbody id="userBody"></tbody>
-        </table>
-
-        <div class="section-title">📦 KHO NICK HIỆN CÓ (CHƯA BỐC)</div>
-        <table id="stockTable">
+        <table>
             <thead>
                 <tr>
                     <th>Loại</th>
                     <th>Tài khoản | Mật khẩu</th>
+                    <th>Khách hàng</th>
+                    <th>Trạng thái</th>
                     <th>Hành động</th>
                 </tr>
             </thead>
-            <tbody id="stockBody"></tbody>
+            <tbody id="mainBody"></tbody>
         </table>
     </div>
 
@@ -105,7 +94,7 @@
         window.bulkAdd = async () => {
             const type = document.getElementById('accType').value;
             const input = document.getElementById('bulkInput').value.trim();
-            if(!input) return alert("Nhập data!");
+            if(!input) return alert("Nhập data đi Hùng ơi!");
             const lines = input.split('\n');
             for (let line of lines) {
                 if (line.includes('|')) {
@@ -117,69 +106,59 @@
                 }
             }
             document.getElementById('bulkInput').value = '';
-            alert("Đã nạp thành công!");
+            alert("Đã nạp xong!");
         };
 
-        // Reset toàn bộ
-        window.resetSystem = async () => {
-            if(confirm("CẢNH BÁO: Hành động này sẽ xóa sạch tất cả Nick và lịch sử khách đã bốc!")) {
+        // Xóa sạch (Reset sự kiện)
+        window.resetAll = async () => {
+            if(confirm("Xóa sạch toàn bộ Nick và Lịch sử bốc? Khách sẽ bốc lại được từ đầu.")) {
                 await remove(ref(db, 'acc_lienquan'));
-                await set(ref(db, 'event_config/id'), Date.now()); // Thay đổi ID sự kiện để LocalStorage của khách tự reset
-                alert("Đã xóa sạch toàn bộ data.");
+                await set(ref(db, 'event_config/id'), Date.now());
+                alert("Đã reset trắng hệ thống!");
             }
         };
 
-        // Xóa hoàn toàn 1 nick khỏi kho
-        window.deleteAcc = (id) => {
-            if(confirm("Xóa vĩnh viễn nick này?")) remove(ref(db, `acc_lienquan/${id}`));
+        // RESET LƯỢT (Giữ nick, đuổi khách cũ để nick quay lại kho)
+        window.resetSlot = async (id) => {
+            if(confirm("Giải phóng nick này? Khách cũ sẽ mất quyền xem, nick quay lại kho.")) {
+                await update(ref(db, `acc_lienquan/${id}`), { status: 'available', buyer: '' });
+            }
         };
 
-        // QUAN TRỌNG: Xóa data người đã bốc (Reset nick đó về trạng thái chưa bốc)
-        window.clearBuyer = async (id) => {
-            if(confirm("Xóa thông tin khách này? Nick này sẽ quay lại kho và khách có thể bốc lại lượt mới.")) {
-                await update(ref(db, `acc_lienquan/${id}`), {
-                    status: 'available',
-                    buyer: ''
-                });
-                // Lưu ý: Để khách bốc lại được ngay, bạn nên yêu cầu khách dùng trình duyệt ẩn danh hoặc bạn nhấn "Reset sự kiện" ở trên.
-                alert("Đã giải phóng Nick!");
+        // XÓA VĨNH VIỄN (Gộp xóa nick và xóa lượt)
+        window.deleteEntry = (id) => {
+            if(confirm("Xóa vĩnh viễn nick này khỏi hệ thống?")) {
+                remove(ref(db, `acc_lienquan/${id}`));
             }
         };
 
         onValue(ref(db, 'acc_lienquan'), (snap) => {
             const data = snap.val();
-            const userBody = document.getElementById('userBody');
-            const stockBody = document.getElementById('stockBody');
-            userBody.innerHTML = '';
-            stockBody.innerHTML = '';
+            const body = document.getElementById('mainBody');
+            body.innerHTML = '';
             
             let t=0, sss=0, ss=0, rd=0;
             if(data) {
                 Object.keys(data).reverse().forEach(id => {
                     const item = data[id];
+                    const isSold = item.status === 'sold';
                     const tagClass = item.type.toLowerCase();
                     
-                    if(item.status === 'sold') {
-                        // Đổ vào bảng Khách đã bốc
-                        userBody.innerHTML += `<tr class="sold">
-                            <td><b>${item.buyer}</b></td>
-                            <td><span class="tag ${tagClass}">${item.type}</span></td>
-                            <td>${item.username} | ${item.password}</td>
-                            <td>
-                                <button class="btn-clear-user" onclick="clearBuyer('${id}')">Xóa lượt bốc</button>
-                                <button class="btn-del" onclick="deleteAcc('${id}')">Xóa Nick</button>
-                            </td>
-                        </tr>`;
-                    } else {
-                        // Đổ vào bảng Kho nick
+                    if(!isSold) {
                         t++;
                         if(item.type === 'SSS') sss++; else if(item.type === 'SS') ss++; else rd++;
-                        stockBody.innerHTML += `<tr>
-                            <td><span class="tag ${tagClass}">${item.type}</span></td>
-                            <td>${item.username} | ${item.password}</td>
-                            <td><button class="btn-del" onclick="deleteAcc('${id}')">Xóa</button></td>
-                        </tr>`;
                     }
+
+                    body.innerHTML += `<tr class="${isSold ? 'status-sold' : ''}">
+                        <td><span class="tag ${tagClass}">${item.type}</span></td>
+                        <td><b>${item.username}</b> | ${item.password}</td>
+                        <td>${isSold ? '👤 ' + item.buyer : '-'}</td>
+                        <td>${isSold ? '❌ Đã bốc' : '<span class="status-avail">🟢 Sẵn sàng</span>'}</td>
+                        <td>
+                            ${isSold ? `<button class="btn-refresh" onclick="resetSlot('${id}')" title="Đưa nick về kho">Reset Lượt</button>` : ''}
+                            <button class="btn-del" onclick="deleteEntry('${id}')">XÓA</button>
+                        </td>
+                    </tr>`;
                 });
             }
             document.getElementById('st-total').innerText = t;
