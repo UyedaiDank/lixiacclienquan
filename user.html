@@ -28,11 +28,14 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
         .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 4px solid var(--gold); width: 100%; max-width: 350px; }
         .btn-main { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        .btn-like { background: #3897f0; color: white; margin-bottom: 10px; display: block; text-decoration: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 0.9rem; }
+        
+        /* Nút Like Facebook màu xanh đặc trưng */
+        .btn-like-fb { background: #1877F2; color: white; margin-bottom: 10px; display: block; text-decoration: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 0.9rem; transition: 0.2s; }
+        .btn-like-fb:hover { background: #166fe5; }
         
         .stat-badge { background: #f0f2f5; padding: 10px; border-radius: 10px; flex: 1; margin: 5px; border: 1px solid #ddd; }
         input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; text-align: center; }
-        .check-step { font-size: 0.75rem; color: #666; margin-bottom: 10px; }
+        .check-step { font-size: 0.75rem; color: #666; margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -41,8 +44,8 @@
 
     <div class="risk-box">
         <div style="color:#ff4757; font-weight:bold; text-align:center; margin-bottom:5px;">⚠️ ĐIỀU KIỆN NHẬN LỘC</div>
-        <li>1. Nhấn **Like bài viết** được chỉ định.</li>
-        <li>2. Nhập chính xác **Instagram** để đối chiếu.</li>
+        <li>1. Nhấn **Like bài viết Facebook** bên dưới.</li>
+        <li>2. Nhập chính xác **Instagram** để nhận diện.</li>
         <li>3. Reset lượt bốc sau **72 giờ**.</li>
     </div>
 
@@ -62,12 +65,12 @@
     <div class="overlay" id="loginForm">
         <div class="win-box">
             <h2 style="color:var(--red); margin-top:0">BƯỚC 1: NHẬN LỘC</h2>
-            <p class="check-step">Vui lòng Like bài viết Instagram này trước khi bốc</p>
+            <p class="check-step">Vui lòng Like bài viết Facebook này trước!</p>
             
-            <a href="https://www.instagram.com/p/XXXXXXXXX/" target="_blank" class="btn-like" onclick="document.getElementById('step2').style.display='block'">👍 LIKE BÀI VIẾT TẠI ĐÂY</a>
+            <a href="https://www.facebook.com/share/p/1HSNu3Fvpg/" target="_blank" class="btn-like-fb" onclick="document.getElementById('step2').style.display='block'">👍 LIKE BÀI VIẾT TẠI ĐÂY</a>
 
-            <div id="step2" style="display:none; border-top: 1px solid #eee; padding-top: 15px;">
-                <p class="check-step">BƯỚC 2: NHẬP ID INSTAGRAM CỦA BẠN</p>
+            <div id="step2" style="display:none; border-top: 1px solid #eee; padding-top: 15px; margin-top: 10px;">
+                <p class="check-step">BƯỚC 2: NHẬP INSTAGRAM ĐỐI CHIẾU</p>
                 <input type="text" id="instaID" placeholder="Ví dụ: @tuanhung_2k6">
                 <button class="btn-main" onclick="checkUser()">VÀO HÁI LỘC</button>
             </div>
@@ -82,7 +85,7 @@
                 <div class="stat-badge"><small>TƯỚNG</small><br><b id="outHero">0</b></div>
                 <div class="stat-badge"><small>SKIN</small><br><b id="outSkin">0</b></div>
             </div>
-            <div style="background:#fff9f9; padding:15px; border-radius:10px; border:1px dashed var(--red); text-align: left; font-family: monospace; margin-top:15px;">
+            <div style="background:#fff9f9; padding:15px; border-radius:10px; border:1px dashed var(--red); text-align: left; font-family: monospace; margin-top:15px; word-break: break-all;">
                 <div>TK: <b id="outUser" style="color:blue"></b></div>
                 <div>MK: <b id="outPass" style="color:blue"></b></div>
             </div>
@@ -94,6 +97,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // Cấu hình Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyA9uVdTdtEhxpH3qn9v2g2pCD-9X-C6jic",
             authDomain: "lixiacclienquan.firebaseapp.com",
@@ -108,6 +112,7 @@
 
         let currentInsta = "";
 
+        // Kiểm tra thời gian 72h
         function handleTimeReset() {
             const lastOpen = localStorage.getItem('opened_time_2026');
             if (lastOpen) {
@@ -122,11 +127,12 @@
 
         window.checkUser = () => {
             const id = document.getElementById('instaID').value.trim();
-            if(!id.startsWith('@')) return alert("ID Instagram phải có dấu @ ở đầu!");
+            if(!id.startsWith('@')) return alert("ID Instagram phải bắt đầu bằng @");
             currentInsta = id;
             document.getElementById('loginForm').style.display = 'none';
         };
 
+        // Đồng bộ Realtime
         onValue(ref(db, 'acc_lienquan'), (snap) => {
             const data = snap.val();
             const grid = document.getElementById('main-grid');
@@ -168,10 +174,10 @@
             const lastOpen = localStorage.getItem('opened_time_2026');
             if (lastOpen) {
                 const diff = (new Date().getTime() - lastOpen) / (1000 * 60 * 60);
-                if (diff < 72) return alert(`Quay lại sau ${(72 - diff).toFixed(1)} giờ.`);
+                if (diff < 72) return alert(`Bạn cần đợi thêm ${(72 - diff).toFixed(1)} giờ nữa.`);
             }
 
-            if(!confirm("Mở bao lì xì này?")) return;
+            if(!confirm("Xác nhận hái bao lì xì này?")) return;
 
             const timeStr = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
             localStorage.setItem('opened_2026', 'true');
@@ -181,11 +187,12 @@
                 status: 'sold', buyer: currentInsta, sold_date: timeStr 
             });
 
-            const msg = `🏮 KHÁCH BỐC TRÚNG!\n👤 IG: ${currentInsta}\n💎 Loại: ${item.type}\n📧 TK: ${item.username} | MK: ${item.password}`;
+            // Gửi Telegram cho bạn
+            const msg = `🏮 KHÁCH BỐC TRÚNG!\n👤 Instagram: ${currentInsta}\n💎 Loại: ${item.type}\n📧 TK: ${item.username} | MK: ${item.password}`;
             fetch(`https://api.telegram.org/bot8506964729:AAFOdrKaq5TUMiqI7OWfHKpNrwY4qZoynVo/sendMessage?chat_id=7114174347&text=${encodeURIComponent(msg)}`);
 
             confetti({ particleCount: 150, spread: 70 });
-            document.getElementById('outType').innerText = "TRÚNG ACC " + item.type;
+            document.getElementById('outType').innerText = "BẠN TRÚNG ACC " + item.type;
             document.getElementById('outHero').innerText = item.hero;
             document.getElementById('outSkin').innerText = item.skin;
             document.getElementById('outUser').innerText = item.username;
