@@ -2,117 +2,102 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>🧧 HÁI LỘC BÍNH NGỌ 2026 - TUẤN HÙNG 🧧</title>
+    <title>🧧 HÁI LỘC MAY MẮN 2026 - TUẤN HÙNG 🧧</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --red: #ce1f1f; --gold: #ffd700; --dark: #121212; }
-        body { background: var(--dark); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
+        body { background: var(--dark); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 20px; box-sizing: border-box; }
         
-        /* Hiệu ứng hoa rơi */
-        .flower { position: fixed; top: -10%; z-index: 999; pointer-events: none; animation: fall linear infinite; }
-        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+        /* Bảng thông báo khách trúng thưởng */
+        .winner-board { max-width: 500px; margin: 20px auto; background: rgba(255, 215, 0, 0.05); border: 1px solid var(--gold); border-radius: 12px; padding: 12px; position: relative; }
+        .winner-title { color: var(--gold); font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .winner-list { height: 130px; overflow-y: auto; font-size: 0.8rem; text-align: left; padding-right: 5px; }
+        .winner-list::-webkit-scrollbar { width: 3px; }
+        .winner-list::-webkit-scrollbar-thumb { background: var(--gold); }
+        .winner-item { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ddd; display: flex; justify-content: space-between; }
+        .winner-item b { color: #fff; }
+        .winner-item span { color: var(--gold); font-weight: bold; }
 
-        /* Bảng thông báo rủi ro */
-        .risk-announcement { max-width: 500px; margin: 10px auto 20px; background: rgba(255, 0, 0, 0.1); border: 1px solid #ff4757; border-radius: 12px; padding: 15px; text-align: left; }
-        .risk-title { color: #ff4757; font-weight: bold; font-size: 0.9rem; margin-bottom: 10px; text-align: center; text-decoration: underline; }
-        .risk-list { margin: 0; padding-left: 20px; font-size: 0.8rem; color: #ffd700; line-height: 1.5; }
-        .risk-list li { margin-bottom: 5px; }
-
-        /* Thống kê kho */
-        .stock-board { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; font-size: 0.8rem; }
-        .stock-item { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--gold); }
-        .stock-item b { color: var(--gold); font-size: 1rem; }
-
-        /* Chữ chạy thông báo */
-        .win-notif { position: fixed; white-space: nowrap; color: var(--gold); font-weight: bold; font-size: 0.85rem; z-index: 1000; pointer-events: none; background: rgba(206, 31, 31, 0.9); padding: 7px 15px; border-radius: 20px; border: 1px solid var(--gold); box-shadow: 0 0 15px rgba(255,215,0,0.3); animation: moveSide linear forwards; }
-        @keyframes moveSide { from { left: 110vw; } to { left: -110vw; } }
+        .risk-box { max-width: 500px; margin: 0 auto 20px; background: rgba(255,0,0,0.1); border: 1px solid #ff4757; border-radius: 12px; padding: 15px; text-align: left; font-size: 0.8rem; line-height: 1.5; }
+        .stock-board { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stock-item { background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 15px; border: 1px solid var(--gold); font-size: 0.75rem; min-width: 80px; }
         
-        /* Grid lì xì */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 15px; max-width: 600px; margin: auto; }
-        .lixi-box { position: relative; width: 85px; height: 120px; cursor: pointer; margin: auto; transition: 0.3s; }
-        .lixi-box:hover { transform: translateY(-5px); }
-        .lixi-body { position: absolute; bottom: 0; width: 100%; height: 80%; background: var(--red); border: 2px solid var(--gold); border-radius: 0 0 10px 10px; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
-        .lixi-cap { position: absolute; top: 10%; width: 100%; height: 30%; background: #b01a1a; border: 2px solid var(--gold); border-radius: 10px 10px 0 0; z-index: 3; transition: 0.5s; }
-        .gift-inside { position: absolute; bottom: 10%; left: 5%; width: 90%; height: 60%; background: #fff; border-radius: 5px; color: #333; font-size: 0.6rem; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 1; transition: 1s; opacity: 0; }
-        .lixi-box.open .lixi-cap { transform: rotateX(160deg); }
-        .lixi-box.open .gift-inside { transform: translateY(-60px); opacity: 1; z-index: 4; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 15px; max-width: 500px; margin: auto; }
+        .lixi { height: 110px; cursor: pointer; background: var(--red); border: 2px solid var(--gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: 0.3s; position: relative; overflow: hidden; }
+        .lixi::after { content: "🧧"; }
+        .lixi:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(255,0,0,0.4); }
+        .lixi:active { transform: scale(0.9); }
 
         /* Overlay & Popups */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
-        .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 100%; max-width: 350px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; text-align: center; box-sizing: border-box; font-weight: bold; }
-        .btn-main { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; text-decoration: none; display: block; }
-        .btn-fb { background: #1877F2; margin-bottom: 10px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
-        .disabled { background: #ccc !important; opacity: 0.6; cursor: not-allowed; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
+        .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 4px solid var(--gold); width: 100%; max-width: 350px; position: relative; }
+        .btn-main { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.2s; }
+        .btn-main:hover { opacity: 0.9; }
+        .stat-badge { background: #f0f2f5; padding: 10px; border-radius: 10px; flex: 1; margin: 5px; border: 1px solid #ddd; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 1rem; text-align: center; }
     </style>
 </head>
 <body>
 
-    <h1>🧧 HÁI LỘC BÍNH NGỌ 2026 🧧</h1>
+    <h1 style="color:var(--gold); margin-bottom: 10px;">🧧 HÁI LỘC ĐẦU XUÂN 2026 🧧</h1>
 
-    <div class="risk-announcement">
-        <div class="risk-title">⚠️ THÔNG BÁO QUAN TRỌNG</div>
-        <ul class="risk-list">
-            <li>Lì xì là ngẫu nhiên, có thể trúng Acc <b>Sai pass, Bị khóa</b> hoặc <b>Có người chơi</b>.</li>
-            <li>Hệ thống <b>không bảo hành</b> hoặc đổi trả dưới mọi hình thức.</li>
-            <li>Sau khi trúng, hãy <b>Tag Instagram @user.dth</b> để được bảo lưu vận may.</li>
-        </ul>
+    <div class="risk-box">
+        <div style="color:#ff4757; font-weight:bold; text-align:center; margin-bottom:5px;">⚠️ QUY ĐỊNH THAM GIA</div>
+        <li>Mỗi tài khoản được bốc 1 lần. <b>Reset sau mỗi 72 giờ</b>.</li>
+        <li>Tất cả acc là ngẫu nhiên (Có thể Sai Pass/Bị Khóa).</li>
+        <li>Bốc xong vui lòng <b>Tag Instagram @user.dth</b> vào Story.</li>
     </div>
 
     <div class="stock-board">
-        <div class="stock-item">💎 SSS: <b id="count-sss">0</b></div>
-        <div class="stock-item">🌟 SS: <b id="count-ss">0</b></div>
-        <div class="stock-item">🎁 RD: <b id="count-rd">0</b></div>
+        <div class="stock-item">💎 SSS: <b id="c-sss">0</b></div>
+        <div class="stock-item">🌟 SS: <b id="c-ss">0</b></div>
+        <div class="stock-item">🎁 RANDOM: <b id="c-rd">0</b></div>
     </div>
 
-    <div class="grid" id="main-grid"></div>
-
-    <div class="overlay" id="loginForm">
-        <div class="win-box">
-            <h2 style="color:var(--red); margin:0">BÍNH NGỌ PHÁT TÀI</h2>
-            <p style="font-size: 0.85rem; margin: 15px 0;">Vui lòng Like bài viết để mở khóa bốc lộc!</p>
-            <a href="https://www.facebook.com/share/p/1XSAvnLMw5/" target="_blank" class="btn-main btn-fb" onclick="hasClickedLike()">1. BẤM LIKE TẠI ĐÂY</a>
-            <input type="text" id="instaID" placeholder="Nhập @Instagram của bạn">
-            <button class="btn-main disabled" id="entryBtn" onclick="checkUser()" disabled>2. VÀO HÁI LỘC</button>
+    <div class="winner-board">
+        <div class="winner-title">🔔 LỊCH SỬ HÁI LỘC MỚI NHẤT</div>
+        <div class="winner-list" id="winnerList">
+            <div style="text-align:center; color:#666; margin-top:40px;">Đang cập nhật danh sách...</div>
         </div>
     </div>
 
-    <div class="overlay" id="confirmOverlay" style="display: none;">
+    <div id="main-grid" class="grid"></div>
+
+    <div class="overlay" id="loginForm">
         <div class="win-box">
-            <h2 style="color: var(--red);">XÁC NHẬN</h2>
-            <p>Bạn có chắc muốn mở bao lì xì này không?<br>(Mỗi người chỉ có 1 lượt duy nhất)</p>
-            <button class="btn-main" id="btnConfirmYes">MỞ NGAY 🧧</button>
-            <button class="btn-main" style="background:#666" onclick="closeConfirm()">HỦY</button>
+            <h2 style="color:var(--red); margin-top:0">XUÂN BÍNH NGỌ</h2>
+            <p style="font-size: 0.85rem; color: #666;">Nhập chính xác Instagram để nhận lộc</p>
+            <input type="text" id="instaID" placeholder="Ví dụ: @tuanhung_2k6">
+            <button class="btn-main" onclick="checkUser()">VÀO HÁI LỘC</button>
         </div>
     </div>
 
     <div class="overlay" id="resultForm" style="display: none;">
         <div class="win-box">
-            <h2 style="color:var(--red); margin:0">THÀNH CÔNG 🎉</h2>
-            <p style="font-size: 0.9rem; font-weight: bold;">Bạn đã trúng: <span id="outType" style="color: #d35400;"></span></p>
-            <div style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px dashed red; text-align: left; font-family: monospace;">
-                <div>Tài khoản: <b id="outUser"></b></div>
-                <div>Mật khẩu: <b id="outPass"></b></div>
+            <h2 style="color:var(--red); margin:0">CHÚC MỪNG 🎉</h2>
+            <p id="outType" style="font-weight:bold; color:#d35400; margin:12px 0; font-size: 1.1rem;"></p>
+            
+            <div style="display:flex;">
+                <div class="stat-badge"><small style="color:#666">TƯỚNG</small><br><b id="outHero" style="font-size:1.2rem">0</b></div>
+                <div class="stat-badge"><small style="color:#666">SKIN</small><br><b id="outSkin" style="font-size:1.2rem">0</b></div>
             </div>
-            <p style="font-size:0.75rem; color: #444; margin-top:15px; line-height: 1.4;">🧧 <b>Lời nhắn:</b> Đăng nhập thành công nhớ <b>Tag Instagram</b> <span style="color: blue; font-weight: bold;">@user.dth</span> vào Story để Hùng tặng thêm quà nhé!</p>
-            <button class="btn-main" onclick="location.reload()">TUYỆT VỜI</button>
-        </div>
-    </div>
 
-    <div class="overlay" id="blockForm" style="display: none;">
-        <div class="win-box">
-            <div style="font-size:50px">🌸</div>
-            <h3>BẠN ĐÃ HẾT LƯỢT</h3>
-            <p>Mỗi kiện tướng chỉ được hái lộc 1 lần.<br>Chúc bạn năm mới Bính Ngọ vạn sự như ý!</p>
+            <div style="background:#fff9f9; padding:15px; border-radius:10px; border:1px dashed var(--red); text-align: left; font-family: monospace; margin-top:15px; word-break: break-all;">
+                <div style="margin-bottom:5px;">Tài khoản: <b id="outUser" style="color:blue"></b></div>
+                <div>Mật khẩu: <b id="outPass" style="color:blue"></b></div>
+            </div>
+            
+            <p style="font-size:0.75rem; margin-top:12px; color:#555">Chụp màn hình & Tag <b>@user.dth</b> để được hỗ trợ!</p>
+            <button class="btn-main" onclick="location.reload()">TUYỆT VỜI</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // Cấu hình Firebase của bạn
         const firebaseConfig = {
             apiKey: "AIzaSyA9uVdTdtEhxpH3qn9v2g2pCD-9X-C6jic",
             authDomain: "lixiacclienquan.firebaseapp.com",
@@ -124,114 +109,113 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        
-        let currentInsta = "", selectedKey = "", selectedItem = null, serverEventID = 0, clickedLike = false;
 
-        function spawnWinNotif(insta, user, type) {
-            const notif = document.createElement('div');
-            notif.className = 'win-notif';
-            const masked = user.length > 4 ? user.substring(0,2) + "***" + user.substring(user.length-2) : "***";
-            const icon = type === 'SSS' ? '💎' : (type === 'SS' ? '🌟' : '🎁');
-            notif.innerText = `🧧 Kiện tướng ${insta} vừa bốc trúng Acc ${icon}${type} (${masked})`;
-            notif.style.top = Math.random() * 60 + 20 + "vh";
-            notif.style.animationDuration = Math.random() * 5 + 8 + "s";
-            document.body.appendChild(notif);
-            setTimeout(() => notif.remove(), 13000);
-        }
+        let currentInsta = "";
 
-        window.hasClickedLike = () => {
-            clickedLike = true;
-            document.getElementById('entryBtn').classList.remove('disabled');
-            document.getElementById('entryBtn').disabled = false;
-        };
-
-        async function checkBlock() {
-            const snap = await get(ref(db, 'event_config/id'));
-            serverEventID = snap.val() || 0;
-            if (serverEventID.toString() !== localStorage.getItem('lixi_event_id')) {
-                localStorage.removeItem('lixi_opened');
-                localStorage.setItem('lixi_event_id', serverEventID);
-            }
-            if(localStorage.getItem('lixi_opened') === 'true') {
-                document.getElementById('loginForm').style.display = 'none';
-                document.getElementById('blockForm').style.display = 'flex';
+        // Logic kiểm tra reset 72h
+        function handleTimeReset() {
+            const lastOpen = localStorage.getItem('opened_time_2026');
+            if (lastOpen) {
+                const diff = (new Date().getTime() - lastOpen) / (1000 * 60 * 60);
+                if (diff >= 72) {
+                    localStorage.removeItem('opened_2026');
+                    localStorage.removeItem('opened_time_2026');
+                }
             }
         }
-        checkBlock();
+        handleTimeReset();
 
         window.checkUser = () => {
             const id = document.getElementById('instaID').value.trim();
-            if(!id.startsWith('@')) return alert("ID Instagram phải bắt đầu bằng @!");
+            if(!id.startsWith('@')) return alert("ID Instagram phải bắt đầu bằng dấu @");
+            if(id.length < 4) return alert("ID quá ngắn!");
             currentInsta = id;
             document.getElementById('loginForm').style.display = 'none';
         };
 
+        // Lấy dữ liệu Realtime
         onValue(ref(db, 'acc_lienquan'), (snap) => {
             const data = snap.val();
             const grid = document.getElementById('main-grid');
+            const winList = document.getElementById('winnerList');
             grid.innerHTML = '';
+            winList.innerHTML = '';
+            
             let sss=0, ss=0, rd=0;
+            let soldItems = [];
+
             if(data) {
                 Object.keys(data).forEach(key => {
                     const item = data[key];
                     if(item.status === 'available') {
                         if(item.type==='SSS') sss++; else if(item.type==='SS') ss++; else rd++;
                         const box = document.createElement('div');
-                        box.className = 'lixi-box';
-                        box.innerHTML = `<div class="lixi-cap"></div><div class="gift-inside">LIÊN QUÂN</div><div class="lixi-body">🧧</div>`;
-                        box.onclick = () => { selectedKey=key; selectedItem=item; document.getElementById('confirmOverlay').style.display='flex'; };
+                        box.className = 'lixi';
+                        box.onclick = () => openLixi(key, item);
                         grid.appendChild(box);
-                    } else if(Math.random() > 0.85) {
-                        spawnWinNotif(item.buyer, item.username, item.type);
+                    } else if(item.status === 'sold') {
+                        soldItems.push(item);
                     }
                 });
             }
-            document.getElementById('count-sss').innerText = sss;
-            document.getElementById('count-ss').innerText = ss;
-            document.getElementById('count-rd').innerText = rd;
+
+            // Cập nhật bảng thông báo
+            if(soldItems.length > 0) {
+                soldItems.reverse().slice(0, 15).forEach(item => {
+                    const mask = item.buyer.substring(0, 3) + "***";
+                    winList.innerHTML += `<div class="winner-item">
+                        <span>[${item.type}]</span>
+                        <span><b>${mask}</b> vừa bốc trúng</span>
+                        <small>${item.sold_date || ''}</small>
+                    </div>`;
+                });
+            } else {
+                winList.innerHTML = '<div style="text-align:center; color:#666; margin-top:40px;">Chưa có ai bốc, nhanh tay bạn ơi!</div>';
+            }
+
+            document.getElementById('c-sss').innerText = sss;
+            document.getElementById('c-ss').innerText = ss;
+            document.getElementById('c-rd').innerText = rd;
         });
 
-        window.closeConfirm = () => document.getElementById('confirmOverlay').style.display = 'none';
+        async function openLixi(key, item) {
+            const lastOpen = localStorage.getItem('opened_time_2026');
+            if (lastOpen) {
+                const diff = (new Date().getTime() - lastOpen) / (1000 * 60 * 60);
+                if (diff < 72) {
+                    const wait = (72 - diff).toFixed(1);
+                    return alert(`Bạn đã hết lượt! Vui lòng quay lại sau ${wait} giờ nữa.`);
+                }
+            }
 
-        document.getElementById('btnConfirmYes').onclick = async () => {
-            closeConfirm();
-            localStorage.setItem('lixi_opened', 'true');
-            localStorage.setItem('lixi_event_id', serverEventID);
-            await update(ref(db, `acc_lienquan/${selectedKey}`), { status: 'sold', buyer: currentInsta });
+            if(!confirm("Bạn có chắc chắn muốn hái bao lì xì này?")) return;
 
-            const typeIcon = selectedItem.type === 'SSS' ? '💎' : (selectedItem.type === 'SS' ? '🌟' : '🎁');
-            const teleMsg = `
-✨ <b>HỆ THỐNG HÁI LỘC BÍNH NGỌ 2026</b> ✨
-━━━━━━━━━━━━━━━━━━━━
-🏮 <b>LOẠI ACC:</b> [ ${typeIcon} <b>${selectedItem.type}</b> ]
-👤 <b>KHÁCH HÀNG:</b> <code>${currentInsta}</code>
-━━━━━━━━━━━━━━━━━━━━
-📂 <b>THÔNG TIN ĐĂNG NHẬP:</b>
-📧 <b>User:</b> <tg-spoiler>${selectedItem.username}</tg-spoiler>
-🔑 <b>Pass:</b> <tg-spoiler>${selectedItem.password}</tg-spoiler>
+            const timeStr = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
+            
+            // Lưu trạng thái vào máy khách
+            localStorage.setItem('opened_2026', 'true');
+            localStorage.setItem('opened_time_2026', new Date().getTime());
 
-⚠️ <i>Chạm vùng mờ để xem nick!</i>
-━━━━━━━━━━━━━━━━━━━━
-⏰ <b>THỜI GIAN:</b> <code>${new Date().toLocaleString('vi-VN')}</code>
-✅ <b>TRẠNG THÁI:</b> #Thành_Công
-━━━━━━━━━━━━━━━━━━━━`;
-            fetch(`https://api.telegram.org/bot8506964729:AAFOdrKaq5TUMiqI7OWfHKpNrwY4qZoynVo/sendMessage?chat_id=7114174347&parse_mode=html&text=${encodeURIComponent(teleMsg)}`);
+            // Cập nhật Database
+            await update(ref(db, `acc_lienquan/${key}`), { 
+                status: 'sold', 
+                buyer: currentInsta,
+                sold_date: timeStr 
+            });
 
+            // Gửi Telegram (Bot của Tuấn Hùng)
+            const msg = `🏮 KHÁCH BỐC TRÚNG!\n👤 Instagram: ${currentInsta}\n💎 Loại: ${item.type}\n🎯 Tướng: ${item.hero} | Skin: ${item.skin}\n📧 TK: ${item.username}\n🔑 MK: ${item.password}`;
+            fetch(`https://api.telegram.org/bot8506964729:AAFOdrKaq5TUMiqI7OWfHKpNrwY4qZoynVo/sendMessage?chat_id=7114174347&text=${encodeURIComponent(msg)}`);
+
+            // Hiệu ứng & Kết quả
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            document.getElementById('outType').innerText = "ACC " + selectedItem.type;
-            document.getElementById('outUser').innerText = selectedItem.username;
-            document.getElementById('outPass').innerText = selectedItem.password;
+            document.getElementById('outType').innerText = "BẠN ĐÃ TRÚNG ACC " + item.type;
+            document.getElementById('outHero').innerText = item.hero;
+            document.getElementById('outSkin').innerText = item.skin;
+            document.getElementById('outUser').innerText = item.username;
+            document.getElementById('outPass').innerText = item.password;
             document.getElementById('resultForm').style.display = 'flex';
-        };
-
-        setInterval(() => {
-            const f = document.createElement('div');
-            f.className = 'flower'; f.innerText = Math.random() > 0.5 ? '🌸' : '🧧';
-            f.style.left = Math.random() * 100 + 'vw';
-            f.style.animationDuration = (Math.random() * 3 + 2) + 's';
-            document.body.appendChild(f);
-            setTimeout(() => f.remove(), 4000);
-        }, 500);
+        }
     </script>
 </body>
 </html>
