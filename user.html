@@ -9,14 +9,13 @@
         :root { --red: #ce1f1f; --gold: #ffd700; --dark: #121212; --blue: #1877F2; }
         body { background: var(--dark); color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 20px; box-sizing: border-box; }
         
-        /* Bảng thông báo khách trúng thưởng */
         .winner-board { max-width: 500px; margin: 20px auto; background: rgba(255, 215, 0, 0.05); border: 1px solid var(--gold); border-radius: 12px; padding: 12px; }
         .winner-title { color: var(--gold); font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
         .winner-list { height: 130px; overflow-y: auto; font-size: 0.8rem; text-align: left; }
         .winner-item { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ddd; display: flex; justify-content: space-between; }
         .winner-item span { color: var(--gold); font-weight: bold; }
 
-        .risk-box { max-width: 500px; margin: 0 auto 20px; background: rgba(255,0,0,0.1); border: 1px solid #ff4757; border-radius: 12px; padding: 15px; text-align: left; font-size: 0.8rem; line-height: 1.5; }
+        .risk-box { max-width: 500px; margin: 0 auto 20px; background: rgba(255,0,0,0.1); border: 1px solid #ff4757; border-radius: 12px; padding: 15px; text-align: left; font-size: 0.8rem; line-height: 1.5; border-left: 5px solid red; }
         .stock-board { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
         .stock-item { background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 15px; border: 1px solid var(--gold); font-size: 0.75rem; min-width: 80px; }
         
@@ -24,7 +23,6 @@
         .lixi { height: 110px; cursor: pointer; background: var(--red); border: 2px solid var(--gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: 0.3s; }
         .lixi::after { content: "🧧"; }
 
-        /* Popups Common Style */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
         .win-box { background: white; color: #333; padding: 25px; border-radius: 20px; border: 4px solid var(--gold); width: 100%; max-width: 350px; position: relative; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -34,10 +32,8 @@
         
         input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; text-align: center; }
 
-        /* Chỗ này dành cho bảng thông báo 72h đẹp */
         .wait-time { font-size: 1.5rem; font-weight: bold; color: var(--red); margin: 15px 0; letter-spacing: 2px; }
-        .wait-icon { font-size: 3rem; margin-bottom: 10px; display: block; animation: rotate 2s linear infinite; }
-        @keyframes rotate { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+        .warning-text { color: #ce1f1f; font-weight: bold; font-size: 0.75rem; display: block; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -45,9 +41,10 @@
     <h1 style="color:var(--gold);">🧧 HÁI LỘC MAY MẮN 2026 🧧</h1>
 
     <div class="risk-box">
-        <div style="color:#ff4757; font-weight:bold; text-align:center; margin-bottom:5px;">⚠️ ĐIỀU KIỆN THAM GIA</div>
-        <li>Bấm nút <b>Like bài viết</b> bên dưới để mở khóa.</li>
-        <li>Reset lượt bốc sau <b>72 giờ</b> (3 ngày).</li>
+        <div style="color:#ff4757; font-weight:bold; text-align:center; margin-bottom:5px;">⚠️ LƯU Ý QUAN TRỌNG</div>
+        <li>1. Phải <b>Like bài viết Facebook</b> để mở khóa.</li>
+        <li>2. Tỉ lệ trúng acc <b>Khóa, Ban, Sai MK</b> là hoàn toàn có thể tùy vào vận may của bạn.</li>
+        <li>3. Reset lượt hái lộc sau <b>72 giờ</b>.</li>
     </div>
 
     <div class="stock-board">
@@ -66,31 +63,31 @@
     <div class="overlay" id="loginForm">
         <div class="win-box">
             <h2 style="color:var(--red); margin-top:0">NHẬN LỘC ĐẦU XUÂN</h2>
-            <p style="font-size: 0.8rem; color: #666; margin-bottom:15px;">Vui lòng Like bài viết Facebook của Tuấn Hùng để tiếp tục!</p>
+            <p style="font-size: 0.8rem; color: #666; margin-bottom:15px;">Like bài viết để hệ thống xác nhận bốc thăm!</p>
             
             <a href="https://www.facebook.com/share/p/1HSNu3Fvpg/" target="_blank" class="btn-like-fb" onclick="document.getElementById('step2').style.display='block'">👍 LIKE BÀI VIẾT TẠI ĐÂY</a>
 
             <div id="step2" style="display:none; border-top: 1px solid #eee; padding-top: 15px; margin-top: 10px;">
-                <input type="text" id="instaID" placeholder="Nhập Instagram: @tuanhung_2k6">
-                <button class="btn-main" onclick="checkUser()">VÀO HÁI LỘC</button>
+                <span class="warning-text">⚠️ Chấp nhận rủi ro acc lỗi/ban tùy vận may</span>
+                <input type="text" id="instaID" style="margin-top:10px" placeholder="Nhập Instagram: @tuanhung_2k6">
+                <button class="btn-main" onclick="checkUser()">XÁC NHẬN HÁI LỘC</button>
             </div>
         </div>
     </div>
 
     <div class="overlay" id="waitPopup" style="display:none;">
         <div class="win-box">
-            <span class="wait-icon">⏳</span>
-            <h2 style="color:#333; margin:0">BẠN ĐANG TRONG THỜI GIAN CHỜ</h2>
-            <p style="font-size: 0.85rem; color: #666; margin-top:10px;">Mỗi khách hàng chỉ được bốc 1 lần mỗi 72 giờ. Bạn có thể quay lại sau:</p>
+            <span style="font-size:3rem">⏳</span>
+            <h2 style="color:#333; margin:0">THỜI GIAN CHỜ</h2>
+            <p style="font-size: 0.85rem; color: #666; margin-top:10px;">Bạn đã hái lộc rồi. Vui lòng quay lại sau:</p>
             <div class="wait-time" id="countdown">00:00:00</div>
-            <p style="font-size: 0.75rem; color: var(--red);">Chúc bạn năm mới vạn sự như ý!</p>
             <button class="btn-main" onclick="document.getElementById('waitPopup').style.display='none'">ĐÓNG</button>
         </div>
     </div>
 
     <div class="overlay" id="resultForm" style="display: none;">
         <div class="win-box">
-            <h2 style="color:var(--red); margin:0">CHÚC MỪNG 🎉</h2>
+            <h2 style="color:var(--red); margin:0">KẾT QUẢ 🎉</h2>
             <p id="outType" style="font-weight:bold; color:#d35400; margin:12px 0;"></p>
             <div style="display:flex;">
                 <div style="background:#f0f2f5; padding:10px; border-radius:10px; flex:1; margin:5px;">TƯỚNG<br><b id="outHero">0</b></div>
@@ -100,6 +97,7 @@
                 <div>TK: <b id="outUser" style="color:blue"></b></div>
                 <div>MK: <b id="outPass" style="color:blue"></b></div>
             </div>
+            <p style="font-size: 0.7rem; color: #888; margin-top:10px;"><i>Lưu ý: Nếu acc lỗi/ban là do vận may của bạn. Miễn khiếu nại!</i></p>
             <button class="btn-main" onclick="location.reload()">XÁC NHẬN</button>
         </div>
     </div>
@@ -122,20 +120,18 @@
 
         let currentInsta = "";
 
-        // Hàm đếm ngược thời gian chờ
         function startCountdown(remainingMs) {
             const timer = setInterval(() => {
                 if (remainingMs <= 0) {
                     clearInterval(timer);
                     document.getElementById('waitPopup').style.display = 'none';
-                    localStorage.removeItem('opened_time_2026');
                     return;
                 }
                 remainingMs -= 1000;
-                let hours = Math.floor(remainingMs / (1000 * 60 * 60));
-                let mins = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
-                let secs = Math.floor((remainingMs % (1000 * 60)) / 1000);
-                document.getElementById('countdown').innerText = `${hours}h : ${mins}m : ${secs}s`;
+                let h = Math.floor(remainingMs / 3600000);
+                let m = Math.floor((remainingMs % 3600000) / 60000);
+                let s = Math.floor((remainingMs % 60000) / 1000);
+                document.getElementById('countdown').innerText = `${h}h : ${m}m : ${s}s`;
             }, 1000);
         }
 
@@ -159,8 +155,7 @@
                     if(item.status === 'available') {
                         if(item.type==='SSS') sss++; else if(item.type==='SS') ss++; else rd++;
                         const box = document.createElement('div');
-                        box.className = 'lixi';
-                        box.onclick = () => openLixi(key, item);
+                        box.className = 'lixi'; box.onclick = () => openLixi(key, item);
                         grid.appendChild(box);
                     } else if(item.status === 'sold') soldItems.push(item);
                 });
@@ -181,10 +176,8 @@
         async function openLixi(key, item) {
             const lastOpen = localStorage.getItem('opened_time_2026');
             if (lastOpen) {
-                const now = new Date().getTime();
-                const diffMs = now - lastOpen;
+                const diffMs = new Date().getTime() - lastOpen;
                 const waitMs = (72 * 60 * 60 * 1000) - diffMs;
-
                 if (diffMs < (72 * 60 * 60 * 1000)) {
                     document.getElementById('waitPopup').style.display = 'flex';
                     startCountdown(waitMs);
@@ -192,15 +185,14 @@
                 }
             }
 
-            if(!confirm("Xác nhận hái bao lì xì này?")) return;
+            if(!confirm("Bạn chấp nhận rủi ro acc có thể lỗi/ban tùy vận may chứ?")) return;
 
-            const timeStr = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
+            const timeStr = new Date().toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
             localStorage.setItem('opened_time_2026', new Date().getTime());
 
             await update(ref(db, `acc_lienquan/${key}`), { status: 'sold', buyer: currentInsta, sold_date: timeStr });
 
-            // Telegram
-            const msg = `🏮 KHÁCH BỐC TRÚNG!\n👤 Instagram: ${currentInsta}\n💎 Loại: ${item.type}\n📧 TK: ${item.username} | MK: ${item.password}`;
+            const msg = `🏮 KHÁCH BỐC TRÚNG!\n👤 IG: ${currentInsta}\n💎 Loại: ${item.type}\n📧 TK: ${item.username} | MK: ${item.password}`;
             fetch(`https://api.telegram.org/bot8506964729:AAFOdrKaq5TUMiqI7OWfHKpNrwY4qZoynVo/sendMessage?chat_id=7114174347&text=${encodeURIComponent(msg)}`);
 
             confetti({ particleCount: 150, spread: 70 });
