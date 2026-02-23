@@ -2,71 +2,51 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Quản Lý Tổng Hợp 2026</title>
+    <title>Admin VIP - Phân Loại Theo Chỉ Số 2026</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         h2 { color: #ce1f1f; text-align: center; text-transform: uppercase; }
         .form-group { background: #fff5f5; padding: 20px; border-radius: 10px; border: 1px solid #ffebeb; margin-bottom: 20px; }
-        label { font-weight: bold; display: block; margin-bottom: 8px; }
-        select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; font-size: 1rem; }
-        textarea { height: 80px; }
-        .btn-group { display: flex; gap: 10px; }
-        button { flex: 2; padding: 12px; background: #ce1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        textarea { width: 100%; height: 150px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-family: monospace; font-size: 12px; box-sizing: border-box; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        button { flex: 2; padding: 15px; background: #ce1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .btn-reset { flex: 1; background: #ff9f43; }
-        
         .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 25px 0; text-align: center; }
         .stats div { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #ddd; }
         .stats b { display: block; font-size: 1.5rem; color: #ce1f1f; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 0.85rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 0.8rem; }
         th, td { border: 1px solid #eee; padding: 10px; text-align: left; }
         th { background: #333; color: #fff; }
-        
-        .tag { padding: 3px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; color: white; }
+        .tag { padding: 3px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; color: white; text-transform: uppercase; }
         .sss { background: #ff4757; } .ss { background: #ffa502; } .random { background: #2f3542; }
-        
-        .btn-del { width: 100%; background: #ff4757; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-del:hover { background: #c0392b; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        
-        .status-sold { background: #fff9db; color: #856404; }
-        .status-avail { color: #2ed573; font-weight: bold; }
+        .btn-del { width: 100%; background: #ff4757; color: white; border: none; padding: 5px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🧧 QUẢN LÝ TỔNG HỢP - SHOP TUẤN HÙNG 🧧</h2>
-        
+        <h2>🧧 QUẢN LÝ ACC PHÂN LOẠI CHỈ SỐ 🧧</h2>
         <div class="form-group">
-            <label>Nạp Nick Mới:</label>
-            <div style="display:flex; gap:10px">
-                <select id="accType" style="flex:1">
-                    <option value="SSS">💎 ACC SSS</option>
-                    <option value="SS">🌟 ACC SS</option>
-                    <option value="Random">🎁 ACC RANDOM</option>
-                </select>
-                <textarea id="bulkInput" style="flex:2" placeholder="Định dạng: User|Pass (Mỗi nick 1 dòng)"></textarea>
-            </div>
+            <label style="font-weight:bold; display:block; margin-bottom:10px;">Dán danh sách nick vào đây:</label>
+            <textarea id="bulkInput" placeholder="result = user:pass | NAME... SSS : 1..."></textarea>
             <div class="btn-group">
-                <button onclick="bulkAdd()">NẠP VÀO KHO</button>
-                <button class="btn-reset" onclick="resetAll()">XÓA SẠCH TẤT CẢ DATA</button>
+                <button onclick="bulkAdd()">NẠP & PHÂN LOẠI TỰ ĐỘNG</button>
+                <button class="btn-reset" onclick="resetAll()">RESET DATA</button>
             </div>
         </div>
-
         <div class="stats">
             <div>Tổng kho<b id="st-total">0</b></div>
-            <div>Còn SSS<b id="st-sss">0</b></div>
-            <div>Còn SS<b id="st-ss">0</b></div>
-            <div>Còn RD<b id="st-rd">0</b></div>
+            <div>Kho SSS<b id="st-sss">0</b></div>
+            <div>Kho SS<b id="st-ss">0</b></div>
+            <div>Kho Random<b id="st-rd">0</b></div>
         </div>
-
         <table>
             <thead>
                 <tr>
                     <th>Loại</th>
                     <th>Tài khoản | Mật khẩu</th>
-                    <th>Khách hàng</th>
+                    <th>Chi tiết Skin</th>
                     <th>Trạng thái</th>
                     <th>Hành động</th>
                 </tr>
@@ -79,7 +59,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, push, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Cấu hình Firebase (Giữ nguyên của bạn)
         const firebaseConfig = {
             apiKey: "AIzaSyA9uVdTdtEhxpH3qn9v2g2pCD-9X-C6jic",
             authDomain: "lixiacclienquan.firebaseapp.com",
@@ -92,68 +71,73 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Chức năng nạp Nick
         window.bulkAdd = async () => {
-            const type = document.getElementById('accType').value;
             const input = document.getElementById('bulkInput').value.trim();
-            if(!input) return alert("Vui lòng nhập danh sách!");
+            if(!input) return alert("Hùng ơi chưa dán nick kìa!");
+            
             const lines = input.split('\n');
+            let count = 0;
+
             for (let line of lines) {
                 if (line.includes('|')) {
-                    const [u, p] = line.split('|');
-                    await set(push(ref(db, 'acc_lienquan')), { 
-                        username: u.trim(), password: p.trim(), 
-                        status: 'available', buyer: '', type: type 
-                    });
+                    try {
+                        // 1. Tách User:Pass
+                        const mainPart = line.split('|')[0].replace('result = ', '').trim();
+                        const [u, p] = mainPart.split(':');
+
+                        // 2. Tách chỉ số (Số lượng)
+                        const hero = (line.match(/HERO\s*:\s*(\d+)/i) || [0, 0])[1];
+                        const skin = (line.match(/SKIN\s*:\s*(\d+)/i) || [0, 0])[1];
+                        const ssNum = parseInt((line.match(/SS\s*:\s*(\d+)/i) || [0, 0])[1]);
+                        const sssNum = parseInt((line.match(/SSS\s*:\s*(\d+)/i) || [0, 0])[1]);
+                        const animeNum = parseInt((line.match(/ANIME\s*:\s*(\d+)/i) || [0, 0])[1]);
+
+                        // 3. LOGIC PHÂN LOẠI THEO CHỈ SỐ ĐÚNG Ý BẠN
+                        let finalType = "Random";
+                        if (sssNum > 0) {
+                            finalType = "SSS";
+                        } else if (ssNum > 0) {
+                            finalType = "SS";
+                        } else if (animeNum > 0) {
+                            finalType = "Random"; // Anime : 1 là random theo ý bạn
+                        }
+
+                        if(u && p) {
+                            await set(push(ref(db, 'acc_lienquan')), { 
+                                username: u, password: p, hero: hero, skin: skin,
+                                status: 'available', buyer: '', type: finalType 
+                            });
+                            count++;
+                        }
+                    } catch (e) { console.error(e); }
                 }
             }
+            alert(`Đã nạp thành công ${count} nick!`);
             document.getElementById('bulkInput').value = '';
-            alert("Đã nạp thành công!");
         };
 
-        // Xóa sạch toàn bộ (Reset sự kiện cho khách mới)
-        window.resetAll = async () => {
-            if(confirm("XÓA TẤT CẢ: Hành động này xóa sạch kho nick và lịch sử khách bốc. Bạn chắc chứ?")) {
-                await remove(ref(db, 'acc_lienquan'));
-                await set(ref(db, 'event_config/id'), Date.now());
-                alert("Hệ thống đã được làm mới hoàn toàn!");
-            }
-        };
+        window.resetAll = async () => { if(confirm("Xóa sạch data?")) { await remove(ref(db, 'acc_lienquan')); await set(ref(db, 'event_config/id'), Date.now()); } };
+        window.deleteEntry = (id) => { if(confirm("Xóa nick này?")) remove(ref(db, `acc_lienquan/${id}`)); };
 
-        // XÓA MỘT DÒNG: Xóa luôn cả Account và Lượt bốc của khách
-        window.deleteEntry = (id, isSold) => {
-            let msg = isSold ? "Nick này ĐÃ CÓ người bốc. Xóa sẽ mất cả nick và lượt bốc của khách. Đồng ý?" : "Xóa vĩnh viễn nick này khỏi kho?";
-            if(confirm(msg)) {
-                remove(ref(db, `acc_lienquan/${id}`));
-            }
-        };
-
-        // Lắng nghe dữ liệu
         onValue(ref(db, 'acc_lienquan'), (snap) => {
             const data = snap.val();
             const body = document.getElementById('mainBody');
             body.innerHTML = '';
-            
             let t=0, sss=0, ss=0, rd=0;
             if(data) {
                 Object.keys(data).reverse().forEach(id => {
                     const item = data[id];
                     const isSold = item.status === 'sold';
-                    const tagClass = item.type.toLowerCase();
-                    
                     if(!isSold) {
                         t++;
                         if(item.type === 'SSS') sss++; else if(item.type === 'SS') ss++; else rd++;
                     }
-
-                    body.innerHTML += `<tr class="${isSold ? 'status-sold' : ''}">
-                        <td><span class="tag ${tagClass}">${item.type}</span></td>
+                    body.innerHTML += `<tr style="${isSold?'opacity:0.5':''}">
+                        <td><span class="tag ${item.type.toLowerCase()}">${item.type}</span></td>
                         <td><b>${item.username}</b> | ${item.password}</td>
-                        <td>${isSold ? '👤 ' + item.buyer : '-'}</td>
-                        <td>${isSold ? '❌ Đã bốc' : '<span class="status-avail">🟢 Sẵn sàng</span>'}</td>
-                        <td>
-                            <button class="btn-del" onclick="deleteEntry('${id}', ${isSold})">XÓA</button>
-                        </td>
+                        <td>${item.hero} Tướng - ${item.skin} Skin</td>
+                        <td>${isSold ? '👤 ' + item.buyer : '🟢 Sẵn sàng'}</td>
+                        <td><button class="btn-del" onclick="deleteEntry('${id}')">XÓA</button></td>
                     </tr>`;
                 });
             }
